@@ -11,7 +11,6 @@
 #SBATCH --cpus-per-task=2
 #SBATCH --mail-user=perezjc@kaust.edu.sa
 #SBATCH --mail-type=ALL
-#SBATCH -A conf-gpu-2020.11.23
 
 python main.py --test-samples 2500 --seed ${SLURM_ARRAY_TASK_ID} \
 --checkpoint runs/sample_gauss_k5_s1_run${SLURM_ARRAY_TASK_ID} \
