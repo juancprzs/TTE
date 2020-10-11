@@ -124,3 +124,11 @@ def get_rob_acc(model, testloader, device, cheap=False):
 def print_to_log(text, txt_file_path):
     with open(txt_file_path, 'a') as text_file:
         print(text, file=text_file)
+
+
+def print_training_params(args, txt_file_path):
+    d = vars(args)
+    text = ' | '.join([str(key) + ': ' + str(d[key]) for key in d])
+    # Print to log and console
+    print_to_log(text, txt_file_path)
+    print(text)

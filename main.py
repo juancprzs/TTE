@@ -8,7 +8,7 @@ from resnet import ResNet18
 import torch.backends.cudnn as cudnn
 
 from utils import (get_data_utils, AugWrapper, get_clean_acc, get_rob_acc, 
-    print_to_log)
+    print_to_log, print_training_params)
 
 # For deterministic behavior
 cudnn.benchmark = False
@@ -72,5 +72,8 @@ if __name__ == "__main__":
     # Log path: verify existence of checkpoint dir, or create it
     if not osp.exists(args.checkpoint):
         os.makedirs(args.checkpoint)
+
+    # txt file with all params
+    print_training_params(args, osp.join(args.checkpoint, 'params.txt'))
 
     main(args)
