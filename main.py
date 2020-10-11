@@ -52,7 +52,7 @@ def main(args):
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    rob_aug_acc = get_rob_acc(model_aug, testloader, DEVICE, cheap=True, 
+    rob_aug_acc = get_rob_acc(model_aug, testloader, DEVICE, cheap=False, 
         seed=args.seed)
 
     log_name = osp.join(args.checkpoint, 'ckpt_eval.csv')
