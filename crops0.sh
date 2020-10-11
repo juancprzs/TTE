@@ -5,7 +5,7 @@
 #SBATCH -J crops0
 #SBATCH -o logs/crops0.%J.out
 #SBATCH -e logs/crops0.%J.err
-#SBATCH --time=3:00:00
+#SBATCH --time=8:00:00
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=2
