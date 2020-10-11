@@ -108,8 +108,8 @@ class AugWrapper(nn.Module):
         if gauss_ps is not None:
             kernel_size, sigma = gauss_ps
             total_augs.append(f'gauss k={kernel_size}, s={sigma}')
-            gauss_layer = GaussianLayer(kernel_size=kernel_size, sigma=sigma)
-            self.transforms.append(lambda x: gauss_layer(x))
+            self.gauss_layer = GaussianLayer(kernel_size=kernel_size, sigma=sigma)
+            self.transforms.append(lambda x: self.gauss_layer(x))
 
         return total_augs
 
