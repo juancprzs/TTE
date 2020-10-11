@@ -5,7 +5,7 @@
 #SBATCH -J crops1
 #SBATCH -o logs/crops1.%J.out
 #SBATCH -e logs/crops1.%J.err
-#SBATCH --time=12:00:00
+#SBATCH --time=15:00:00
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=2
@@ -16,5 +16,5 @@
 
 python main.py \
 --seed ${SLURM_ARRAY_TASK_ID} \
---checkpoint runs/n_crops1_run${SLURM_ARRAY_TASK_ID} \
+--checkpoint runs/crops1_run${SLURM_ARRAY_TASK_ID} \
 --n-crops 1

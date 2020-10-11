@@ -16,5 +16,5 @@
 
 python main.py \
 --seed ${SLURM_ARRAY_TASK_ID} \
---checkpoint runs/n_crops3_run${SLURM_ARRAY_TASK_ID} \
+--checkpoint runs/crops3_run${SLURM_ARRAY_TASK_ID} \
 --n-crops 3
