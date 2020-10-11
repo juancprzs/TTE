@@ -52,7 +52,8 @@ def main(args):
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    rob_aug_acc = get_rob_acc(model_aug, testloader, DEVICE, cheap=True)
+    rob_aug_acc = get_rob_acc(model_aug, testloader, DEVICE, cheap=True, 
+        seed=args.seed)
 
     log_name = osp.join(args.checkpoint, 'ckpt_eval.csv')
     info = f'{clean_acc:4.2f},{clean_aug_acc:4.2f},{rob_aug_acc:4.2f}'
@@ -65,7 +66,7 @@ if __name__ == "__main__":
         help='name of directory for saving results')
     parser.add_argument('--n-crops', type=int, default=0, 
         help='num of crops for augmentation')
-    parser.add_argument('--seed', type=int, default=111, 
+    parser.add_argument('--seed', type=int, default=0, 
         help='for deterministic behavior')
     args = parser.parse_args()
 

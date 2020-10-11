@@ -95,10 +95,10 @@ def get_clean_acc(model, testloader, device):
     return acc
 
 
-def get_rob_acc(model, testloader, device, cheap=False):
+def get_rob_acc(model, testloader, device, cheap=False, seed=0):
     model.eval()
     adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=False)
-    adversary.seed = 0
+    adversary.seed = seed
     if cheap:
         print('Running CHEAP attack')
         adversary.attacks_to_run = ['apgd-ce'] # , 'apgd-dlr', 'square', 'fab']
