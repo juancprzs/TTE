@@ -127,7 +127,7 @@ class AugWrapper(nn.Module):
 def get_data_utils(test_samples=None, batch_size=50):
     testset = CIFAR10(root='./data', train=False, 
         transform=Compose([ToTensor()]), download=True)
-    tot_instances = len(test_samples)
+    tot_instances = len(testset)
     if (test_samples is not None) and (test_samples < tot_instances):
         remaining = tot_instances - test_samples
         assert remaining > 0
