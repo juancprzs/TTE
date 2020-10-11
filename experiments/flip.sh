@@ -5,7 +5,7 @@
 #SBATCH -J flip
 #SBATCH -o logs/flip.%J.out
 #SBATCH -e logs/flip.%J.err
-#SBATCH --time=6:00:00
+#SBATCH --time=3:00:00
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=2

@@ -5,7 +5,7 @@
 #SBATCH -J baseline
 #SBATCH -o logs/baseline.%J.out
 #SBATCH -e logs/baseline.%J.err
-#SBATCH --time=3:00:00
+#SBATCH --time=2:00:00
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=2

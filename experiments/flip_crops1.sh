@@ -5,7 +5,7 @@
 #SBATCH -J flip_crops1
 #SBATCH -o logs/flip_crops1.%J.out
 #SBATCH -e logs/flip_crops1.%J.err
-#SBATCH --time=12:00:00
+#SBATCH --time=4:00:00
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=2
@@ -16,4 +16,5 @@
 python main.py --test-samples 2500 --seed ${SLURM_ARRAY_TASK_ID} \
 --checkpoint runs/sample_flip_crops1_run${SLURM_ARRAY_TASK_ID} \
 --n-crops 1 \
---flip
+--flip \
+--flip-crop
