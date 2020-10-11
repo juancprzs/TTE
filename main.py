@@ -27,7 +27,7 @@ def main(args):
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     CKPT_NAME = 'local_trades_best.pth'
     log_name = osp.join(args.checkpoint, 'ckpt_eval.csv')
-    set_seed(DEVICE)
+    set_seed(DEVICE, args.seed)
 
     testloader = get_data_utils(test_samples=args.test_samples)
     # Model
