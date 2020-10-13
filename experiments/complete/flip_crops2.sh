@@ -11,6 +11,7 @@
 #SBATCH --cpus-per-task=2
 #SBATCH --mail-user=perezjc@kaust.edu.sa
 #SBATCH --mail-type=ALL
+#SBATCH -A conf-gpu-2020.11.23
 
 python main.py --seed ${SLURM_ARRAY_TASK_ID} \
 --checkpoint runs/flip_crops2_run${SLURM_ARRAY_TASK_ID} \
