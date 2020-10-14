@@ -196,7 +196,7 @@ def get_rob_acc(model, testloader, device, cheap=False, seed=0):
 
     x_test = torch.cat([x for (x, y) in testloader], 0)
     y_test = torch.cat([y for (x, y) in testloader], 0)
-    adv_complete = adversary.run_standard_evaluation(x_test[:600], y_test[:600], bs=500)
+    adv_complete = adversary.run_standard_evaluation_individual(x_test[:600], y_test[:600], bs=500)
     import pdb; pdb.set_trace()
     n, total_acc = 0, 0
     pbar = tqdm(testloader)
