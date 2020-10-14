@@ -69,18 +69,23 @@ class GaussianLayer(nn.Module):
             f.data.copy_(torch.from_numpy(k))
 
 class NormalizedWrapper(nn.Module):
-    def __init__(self, model, mean, std):
+    def __init__(self, model, mean=None, std=None):
         super(NormalizedWrapper, self).__init__()
         self.model = model
-        # std
-        std = torch.tensor(std).view(1, 3, 1, 1)
-        self.std = nn.Parameter(std, requires_grad=False)
-        # mean
-        mean = torch.tensor(mean).view(1, 3, 1, 1)
-        self.mean = nn.Parameter(mean, requires_grad=False)
+        self.normalize = False
+        if mean is None:
+            assert std is None
+            self.normalize = True
+            # std
+            std = torch.tensor(std).view(1, 3, 1, 1)
+            self.std = nn.Parameter(std, requires_grad=False)
+            # mean
+            mean = torch.tensor(mean).view(1, 3, 1, 1)
+            self.mean = nn.Parameter(mean, requires_grad=False)
 
     def forward(self, x):
-        x = (x - self.mean) / self.std
+        if self.normalize:
+            x = (x - self.mean) / self.std
         return self.model(x)
 
 
@@ -147,7 +152,7 @@ def get_data_utils(test_samples=None, batch_size=50):
         remaining = tot_instances - test_samples
         assert remaining > 0
         print(f'Using {test_samples} samples only!')
-        generator = torch.Generator().manual_seed(111)
+        generator = torch.Generator().manual_seed(111) # for reproducibility
         testset, _ = random_split(testset, [test_samples, remaining], 
                                   generator=generator)
     
@@ -178,8 +183,15 @@ def get_rob_acc(model, testloader, device, cheap=False, seed=0):
     adversary.seed = seed
     if cheap:
         print('Running CHEAP attack')
-        adversary.attacks_to_run = ['apgd-ce'] # , 'apgd-dlr', 'square', 'fab']
-        adversary.apgd.n_iter = 5
+        # adversary.attacks_to_run = ['apgd-ce'] # , 'apgd-dlr', 'square', 'fab']
+        # adversary.apgd.n_iter = 5
+        adversary.attacks_to_run = ['apgd-ce', 'apgd-t', 'fab-t', 'square']
+        adversary.apgd.n_restarts = 1
+        adversary.fab.n_restarts = 1
+        adversary.apgd_targeted.n_restarts = 1
+        adversary.fab.n_target_classes = 2
+        adversary.apgd_targeted.n_target_classes = 2
+        adversary.square.n_queries = 5
 
     n, total_acc = 0, 0
     pbar = tqdm(testloader)
