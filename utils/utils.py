@@ -183,16 +183,18 @@ def get_rob_acc(model, testloader, device, cheap=False, seed=0):
     adversary.seed = seed
     if cheap:
         print('Running CHEAP attack')
-        # adversary.attacks_to_run = ['apgd-ce'] # , 'apgd-dlr', 'square', 'fab']
-        # adversary.apgd.n_iter = 5
+        # based on
+        # https://github.com/fra31/auto-attack/blob/master/autoattack/autoattack.py#L230
         adversary.attacks_to_run = ['apgd-ce', 'apgd-t', 'fab-t', 'square']
+        adversary.apgd.n_iter = 2
         adversary.apgd.n_restarts = 1
         adversary.fab.n_restarts = 1
         adversary.apgd_targeted.n_restarts = 1
         adversary.fab.n_target_classes = 2
         adversary.apgd_targeted.n_target_classes = 2
-        adversary.square.n_queries = 5
+        adversary.square.n_queries = 2
 
+    import pdb; pdb.set_trace()
     n, total_acc = 0, 0
     pbar = tqdm(testloader)
     for _, (X, y) in enumerate(pbar):

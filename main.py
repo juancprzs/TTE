@@ -53,7 +53,9 @@ def main(args):
     model_aug = AugWrapper(model, args.flip, args.n_crops, args.flip_crop, 
                            gauss_ps).to(DEVICE)
 
-    testloader = get_data_utils(test_samples=args.test_samples, batch_size=500)
+    # de-facto GPU usage will be increased by num of transforms!
+    batch_size = args.batch_size / (1 + len(model_aug.total_augs))
+    testloader = get_data_utils(args.test_samples, batch_size)
     # Print augmentations
     info = ','.join(model_aug.total_augs)
     print_to_log(info, log_name)
