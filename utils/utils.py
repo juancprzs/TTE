@@ -200,9 +200,16 @@ def get_rob_acc(model, testloader, device, batch_size, cheap=False, seed=0):
     labs = torch.cat([y for (x, y) in testloader], 0)
     advs = adversary.run_standard_evaluation_individual(imgs[:600], labs[:600], 
                                                         bs=batch_size)
+    
+    accs = compute_accs(model, advs, labs, batch_size)
+
+    import pdb; pdb.set_trace()
+    return advs, accs
+
+def compute_accs(model, advs, labels, batch_size):
     accs = {}
     for attack_name, curr_advs in advs.items():
-        dataset = TensorDataset(curr_advs, labs[:600])
+        dataset = TensorDataset(curr_advs, labels)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, 
                                 num_workers=1, pin_memory=True, drop_last=False)
         n, total_acc = 0, 0
@@ -213,10 +220,10 @@ def get_rob_acc(model, testloader, device, batch_size, cheap=False, seed=0):
                 total_acc += (output.max(1)[1] == lab).sum().item()
                 n += lab.size(0)
             
-        accs.update({attack_name : 100. * total_acc / n})
+        curr_acc = 100. * total_acc / n
+        accs.update({ attack_name : curr_acc })
 
-    import pdb; pdb.set_trace()
-    return advs, accs
+    return accs
 
 
 def print_to_log(text, txt_file_path):
