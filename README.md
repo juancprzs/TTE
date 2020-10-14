@@ -9,7 +9,7 @@ Here, you'll probably have to restart connection with the machine, then come bac
 ```bash
 git clone https://github.com/juancprzs/TAR.git
 cd TAR
-conda env create -f upd_pt.yml
+conda env create -f utils/upd_pt.yml
 ```
 
 Activate the `upd_pt` environment by running

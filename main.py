@@ -4,10 +4,10 @@ import random
 import argparse
 import numpy as np
 import os.path as osp
-from resnet import ResNet18
+from utils.resnet import ResNet18
 import torch.backends.cudnn as cudnn
 
-from utils import (get_data_utils, AugWrapper, get_clean_acc, get_rob_acc, 
+from utils.utils import (get_data_utils, AugWrapper, get_clean_acc, get_rob_acc, 
     print_to_log, print_training_params)
 
 # For deterministic behavior
