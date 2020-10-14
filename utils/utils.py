@@ -196,12 +196,12 @@ def get_rob_acc(model, testloader, device, batch_size, cheap=False, seed=0):
         adversary.apgd_targeted.n_target_classes = 2
         adversary.square.n_queries = 2
 
-    imgs = torch.cat([x for (x, y) in testloader], 0)
-    labs = torch.cat([y for (x, y) in testloader], 0)
-    advs = adversary.run_standard_evaluation_individual(imgs[:600], labs[:600], 
+    imgs = torch.cat([x for (x, y) in testloader], 0)[:600]
+    labs = torch.cat([y for (x, y) in testloader], 0)[:600]
+    advs = adversary.run_standard_evaluation_individual(imgs, labs, 
                                                         bs=batch_size)
     
-    accs = compute_accs(model, advs, labs[:600], device, batch_size)
+    accs = compute_accs(model, advs, labs, device, batch_size)
 
     import pdb; pdb.set_trace()
     return advs, accs
