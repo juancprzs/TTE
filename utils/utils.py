@@ -201,7 +201,7 @@ def get_rob_acc(model, testloader, device, batch_size, cheap=False, seed=0):
     advs = adversary.run_standard_evaluation_individual(imgs[:600], labs[:600], 
                                                         bs=batch_size)
     
-    accs = compute_accs(model, advs, labs, device, batch_size)
+    accs = compute_accs(model, advs, labs[:600], device, batch_size)
 
     import pdb; pdb.set_trace()
     return advs, accs
