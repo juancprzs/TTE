@@ -26,4 +26,4 @@ And install `tqdm`
 pip install tqdm
 ```
 
-The spreadsheet is (here)[https://docs.google.com/spreadsheets/d/13iskg4cQlvAgvLB3HvPuq5tRlykhMZMDv_uHKHUxeZo/edit#gid=0].
+The spreadsheet is [here](https://docs.google.com/spreadsheets/d/13iskg4cQlvAgvLB3HvPuq5tRlykhMZMDv_uHKHUxeZo/edit#gid=0).
