@@ -62,7 +62,7 @@ def main(args):
 
     clean_aug_acc = get_clean_acc(model_aug, testloader, DEVICE)
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    rob_aug_acc = get_rob_acc(model_aug, testloader, DEVICE, cheap=False, 
+    rob_aug_acc = get_rob_acc(model_aug, testloader, DEVICE, cheap=True, 
                               seed=args.seed)
 
     print_to_log(f'{clean_aug_acc:4.2f},{rob_aug_acc:4.2f}', log_name)
