@@ -53,7 +53,7 @@ def main(args):
     model_aug = AugWrapper(model, args.flip, args.n_crops, args.flip_crop, 
                            gauss_ps).to(DEVICE)
 
-    testloader = get_data_utils(test_samples=args.test_samples, batch_size=250)
+    testloader = get_data_utils(test_samples=args.test_samples, batch_size=500)
     # Print augmentations
     info = ','.join(model_aug.total_augs)
     print_to_log(info, log_name)
