@@ -37,7 +37,6 @@ def get_model(experiment, device):
 
 def main(args):
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-    CKPT_NAME = ''
     log_name = osp.join(args.checkpoint, 'ckpt_eval.csv')
     set_seed(DEVICE, args.seed)
 

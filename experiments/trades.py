@@ -100,7 +100,7 @@ class WideResNet(nn.Module):
 
 def get_model():
     # https://github.com/yaodongyu/TRADES/blob/master/evaluate_attack_cifar10.py#L104
-    WEIGHTS_PATH = '../weights/official_trades_cifar_wrn34_10.pth'
+    WEIGHTS_PATH = './weights/official_trades_cifar_wrn34_10.pth'
     model = WideResNet()
     model.load_state_dict(torch.load(WEIGHTS_PATH))
     return model
