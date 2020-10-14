@@ -120,7 +120,8 @@ class AugWrapper(nn.Module):
         x = (x - self.mean) / self.std
         x = torch.cat([t(x).unsqueeze(0) for t in self.transforms])
         x = x.view(-1, x.size(2), x.size(3), x.size(4))
-        scores = self.model(x)[0] # 0=scores, 1=embs
+        scores = self.model(x)
+        scores = scores[0] if isinstance(scores, tuple) else scores # resnet case
         scores = scores.view(len(self.transforms), -1, scores.size(1))
         scores = torch.mean(scores, dim=0) # average across augmentations
         return scores
