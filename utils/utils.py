@@ -201,12 +201,12 @@ def get_rob_acc(model, testloader, device, batch_size, cheap=False, seed=0):
     advs = adversary.run_standard_evaluation_individual(imgs[:600], labs[:600], 
                                                         bs=batch_size)
     
-    accs = compute_accs(model, advs, labs, batch_size)
+    accs = compute_accs(model, advs, labs, device, batch_size)
 
     import pdb; pdb.set_trace()
     return advs, accs
 
-def compute_accs(model, advs, labels, batch_size):
+def compute_accs(model, advs, labels, device, batch_size):
     accs = {}
     for attack_name, curr_advs in advs.items():
         dataset = TensorDataset(curr_advs, labels)
