@@ -12,12 +12,12 @@ cd TAR
 conda env create -f upd_pt.yml
 ```
 
-Also, install AutoAttack:
-```bash
-pip install git+https://github.com/fra31/auto-attack
-```
-
 Activate the `upd_pt` environment by running
 ```bash
 conda activate upd_pt
+```
+
+Also, install AutoAttack:
+```bash
+pip install git+https://github.com/fra31/auto-attack
 ```
