@@ -11,6 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.datasets import CIFAR10
+from torch.utils.data import TensorDataset
 from torchvision.transforms import Compose, ToTensor
 from torch.utils.data import DataLoader, random_split
 
@@ -177,7 +178,7 @@ def get_clean_acc(model, testloader, device):
     return acc
 
 
-def get_rob_acc(model, testloader, device, cheap=False, seed=0):
+def get_rob_acc(model, testloader, device, batch_size, cheap=False, seed=0):
     model.eval()
     adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=True)
     adversary.seed = seed
@@ -185,7 +186,8 @@ def get_rob_acc(model, testloader, device, cheap=False, seed=0):
         print('Running CHEAP attack')
         # based on
         # https://github.com/fra31/auto-attack/blob/master/autoattack/autoattack.py#L230
-        adversary.attacks_to_run = ['apgd-ce', 'apgd-t', 'fab-t', 'square']
+        # adversary.attacks_to_run = ['apgd-ce', 'apgd-t', 'fab-t', 'square']
+        adversary.attacks_to_run = ['apgd-ce', 'square']
         adversary.apgd.n_iter = 2
         adversary.apgd.n_restarts = 1
         adversary.fab.n_restarts = 1
@@ -194,26 +196,27 @@ def get_rob_acc(model, testloader, device, cheap=False, seed=0):
         adversary.apgd_targeted.n_target_classes = 2
         adversary.square.n_queries = 2
 
-    x_test = torch.cat([x for (x, y) in testloader], 0)
-    y_test = torch.cat([y for (x, y) in testloader], 0)
-    adv_complete = adversary.run_standard_evaluation_individual(x_test[:600], y_test[:600], bs=500)
-    import pdb; pdb.set_trace()
-    n, total_acc = 0, 0
-    pbar = tqdm(testloader)
-    for _, (X, y) in enumerate(pbar):
-        X, y = X.to(device), y.to(device)
-        x_adv = adversary.run_standard_evaluation(X, y, bs=y.size(0))
+    imgs = torch.cat([x for (x, y) in testloader], 0)
+    labs = torch.cat([y for (x, y) in testloader], 0)
+    advs = adversary.run_standard_evaluation_individual(imgs[:600], labs[:600], 
+                                                        bs=batch_size)
+    accs = {}
+    for attack_name, curr_advs in advs.items():
+        dataset = TensorDataset(curr_advs, labs)
+        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, 
+                                num_workers=2, pin_memory=True, drop_last=False)
+        n, total_acc = 0, 0
         with torch.no_grad():
-            output = model(x_adv)
-            total_acc += (output.max(1)[1] == y).sum().item()
-            n += y.size(0)
-        acc = 100. * total_acc / n
-        pbar.set_description(f'Current robust acc: {acc:.4f}')
-        print('Max mem: ', torch.cuda.max_memory_allocated(device))
+            for img, lab in dataloader:
+                img, lab = img.to(device), lab.to(device)
+                output = model(img)
+                total_acc += (output.max(1)[1] == lab).sum().item()
+                n += y.size(0)
+            
+        accs.update({attack_name : 100. * total_acc / n})
 
-    acc = 100. * total_acc / n
-    print(f'Robust acc: {acc:.4f}')
-    return acc
+    import pdb; pdb.set_trace()
+    return advs, accs
 
 
 def print_to_log(text, txt_file_path):
