@@ -204,7 +204,7 @@ def get_rob_acc(model, testloader, device, batch_size, cheap=False, seed=0):
     for attack_name, curr_advs in advs.items():
         dataset = TensorDataset(curr_advs, labs[:600])
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, 
-                                num_workers=2, pin_memory=True, drop_last=False)
+                                num_workers=1, pin_memory=True, drop_last=False)
         n, total_acc = 0, 0
         with torch.no_grad():
             for img, lab in dataloader:
