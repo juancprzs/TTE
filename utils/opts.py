@@ -22,6 +22,8 @@ def parse_settings():
                         help='for deterministic behavior')
     parser.add_argument('--test-samples', type=int, default=None, 
                         help='num of test instances to use')
+    parser.add_argument('--batch-size', type=int, default=500,
+                        help='batch size')
     args = parser.parse_args()
 
     return args
