@@ -200,6 +200,7 @@ def get_rob_acc(model, testloader, device, batch_size, cheap=False, seed=0):
     labs = torch.cat([y for (x, y) in testloader], 0)[:600]
     advs = adversary.run_standard_evaluation_individual(imgs, labs, 
                                                         bs=batch_size)
+    adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=True)
     other_advs = adversary.run_standard_evaluation(imgs, labs, bs=batch_size)
     
     accs = compute_accs(model, advs, labs, device, batch_size)
