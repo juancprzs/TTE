@@ -23,6 +23,18 @@ def set_seed(device, seed=111):
         torch.cuda.manual_seed_all(seed)
 
 
+def get_model(experiment):
+    if experiment == 'local_trades':
+        model = ResNet18(num_classes=10).to(DEVICE)
+        state_dict = torch.load(CKPT_NAME)['state_dict']
+        state_dict = { k.replace('model.' ,'') : v for k, v in state_dict.items() }
+        model.load_state_dict(state_dict, strict=False)
+    elif experiment == 'trades':
+        from experiments.trades import get_model
+        model = get_model()
+
+    return model
+
 def main(args):
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     CKPT_NAME = './weights/local_trades_best.pth'
@@ -31,11 +43,7 @@ def main(args):
 
     testloader = get_data_utils(test_samples=args.test_samples)
     # Model
-    resnet = ResNet18(num_classes=10).to(DEVICE)
-    state_dict = torch.load(CKPT_NAME)['state_dict']
-    state_dict = { k.replace('model.' ,'') : v for k, v in state_dict.items() }
-    resnet.load_state_dict(state_dict, strict=False)
-
+    model = get_model(args.experiment)
     std = torch.tensor([1.0, 1.0, 1.0]).view(1, 3, 1, 1).to(DEVICE)
     mean = torch.tensor([0.0, 0.0, 0.0]).view(1, 3, 1, 1).to(DEVICE)
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -45,10 +53,10 @@ def main(args):
     else:
         gauss_ps = None
     
-    model_aug = AugWrapper(resnet, mean, std, flip=args.flip, gauss_ps=gauss_ps,
+    model_aug = AugWrapper(model, mean, std, flip=args.flip, gauss_ps=gauss_ps,
                            n_crops=args.n_crops, flip_crop=args.flip_crop)
     model_aug = model_aug.to(DEVICE)
-    
+
     # Print augmentations
     info = ','.join(model_aug.total_augs)
     print_to_log(info, log_name)
