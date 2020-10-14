@@ -54,7 +54,7 @@ def main(args):
                            gauss_ps).to(DEVICE)
 
     # de-facto GPU usage will be increased by num of transforms!
-    batch_size = args.batch_size / (1 + len(model_aug.total_augs))
+    batch_size = int(args.batch_size / (1 + len(model_aug.total_augs)))
     testloader = get_data_utils(args.test_samples, batch_size)
     # Print augmentations
     info = ','.join(model_aug.total_augs)
