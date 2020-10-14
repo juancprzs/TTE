@@ -8,7 +8,7 @@ from utils.resnet import ResNet18
 import torch.backends.cudnn as cudnn
 
 from utils.utils import (get_data_utils, AugWrapper, get_clean_acc, get_rob_acc, 
-    print_to_log, print_training_params)
+                         print_to_log, print_training_params)
 
 # For deterministic behavior
 cudnn.benchmark = False
@@ -51,36 +51,20 @@ def main(args):
     # Print augmentations
     info = ','.join(model_aug.total_augs)
     print_to_log(info, log_name)
-    
+
     clean_aug_acc = get_clean_acc(model_aug, testloader, DEVICE)
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     rob_aug_acc = get_rob_acc(model_aug, testloader, DEVICE, cheap=False, 
-        seed=args.seed)
+                              seed=args.seed)
 
     info = f'{clean_aug_acc:4.2f},{rob_aug_acc:4.2f}'
     print_to_log(info, log_name)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='PyTorch TAR')
-    parser.add_argument('--checkpoint', type=str, required=True,
-                        help='name of directory for saving results')
-    parser.add_argument('--n-crops', type=int, default=0, 
-                        help='num of crops for aug')
-    parser.add_argument('--flip', action='store_true', default=False,
-                        help='whether to use flip aug')
-    parser.add_argument('--flip-crop', action='store_true', default=False,
-                        help='whether to combine flip aug with crops')
-    parser.add_argument('--gauss-k', type=int, default=None, 
-                        help='kernel size for Gaussian aug')
-    parser.add_argument('--gauss-s', type=float, default=None, 
-                        help='variance for Gaussian aug')
-    parser.add_argument('--seed', type=int, default=0, 
-                        help='for deterministic behavior')
-    parser.add_argument('--test-samples', type=int, default=None, 
-                        help='num of test instances to use')
-    args = parser.parse_args()
+    from utils.opts import parse_settings
+    args = parse_settings()
 
     # Log path: verify existence of checkpoint dir, or create it
     if not osp.exists(args.checkpoint):

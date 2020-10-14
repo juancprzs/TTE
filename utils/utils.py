@@ -50,9 +50,10 @@ class GaussianLayer(nn.Module):
         self.sigma = sigma
         self.kernel_size = kernel_size
         self.seq = nn.Sequential(
-            nn.ReflectionPad2d(self.kernel_size // 2), 
-            nn.Conv2d(3, 3, kernel_size=self.kernel_size, stride=1, padding=0, 
-                      bias=None, groups=3)
+                                 nn.ReflectionPad2d(self.kernel_size // 2), 
+                                 nn.Conv2d(3, 3, kernel_size=self.kernel_size, 
+                                           stride=1, padding=0, bias=None, 
+                                           groups=3)
         )
         self.weights_init()
     
@@ -108,7 +109,8 @@ class AugWrapper(nn.Module):
         if gauss_ps is not None:
             kernel_size, sigma = gauss_ps
             total_augs.append(f'gauss k={kernel_size}, s={sigma}')
-            self.gauss_layer = GaussianLayer(kernel_size=kernel_size, sigma=sigma)
+            self.gauss_layer = GaussianLayer(kernel_size=kernel_size, 
+                                             sigma=sigma)
             self.transforms.append(lambda x: self.gauss_layer(x))
 
         return total_augs
@@ -125,8 +127,8 @@ class AugWrapper(nn.Module):
 
 
 def get_data_utils(test_samples=None, batch_size=50):
-    testset = CIFAR10(root='./data', train=False, 
-        transform=Compose([ToTensor()]), download=True)
+    testset = CIFAR10(root='./data', train=False, download=True,
+                      transform=Compose([ToTensor()]))
     tot_instances = len(testset)
     if (test_samples is not None) and (test_samples < tot_instances):
         remaining = tot_instances - test_samples
@@ -137,7 +139,7 @@ def get_data_utils(test_samples=None, batch_size=50):
                                   generator=generator)
     
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, 
-        num_workers=2, pin_memory=True, drop_last=False)
+                            num_workers=2, pin_memory=True, drop_last=False)
 
     return testloader
 
