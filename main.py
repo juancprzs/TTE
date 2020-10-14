@@ -23,15 +23,15 @@ def set_seed(device, seed=111):
         torch.cuda.manual_seed_all(seed)
 
 
-def get_model(experiment, device):
+def get_model(experiment):
     if experiment == 'local_trades':
-        model = ResNet18(num_classes=10).to(device)
+        model = ResNet18(num_classes=10)
         state_dict = torch.load('./weights/local_trades_best.pth')['state_dict']
         state_dict = { k.replace('model.' ,'') : v for k, v in state_dict.items() }
         model.load_state_dict(state_dict, strict=False)
     elif experiment == 'trades':
         from experiments.trades import get_model
-        model = get_model().to(device)
+        model = get_model().
 
     return model
 
@@ -40,11 +40,9 @@ def main(args):
     log_name = osp.join(args.checkpoint, 'ckpt_eval.csv')
     set_seed(DEVICE, args.seed)
 
-    testloader = get_data_utils(test_samples=args.test_samples)
     # Model
-    model = get_model(args.experiment, DEVICE)
-    std = torch.tensor([1.0, 1.0, 1.0]).view(1, 3, 1, 1).to(DEVICE)
-    mean = torch.tensor([0.0, 0.0, 0.0]).view(1, 3, 1, 1).to(DEVICE)
+    model = get_model(args.experiment)
+    
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Parameters for Gaussian (if any)
     if (args.gauss_k is not None) and (args.gauss_s is not None):
@@ -52,10 +50,10 @@ def main(args):
     else:
         gauss_ps = None
     
-    model_aug = AugWrapper(model, mean, std, flip=args.flip, gauss_ps=gauss_ps,
-                           n_crops=args.n_crops, flip_crop=args.flip_crop)
-    model_aug = model_aug.to(DEVICE)
+    model_aug = AugWrapper(model, args.flip, args.n_crops, args.flip_crop, 
+                           gauss_ps).to(DEVICE)
 
+    testloader = get_data_utils(test_samples=args.test_samples)
     # Print augmentations
     info = ','.join(model_aug.total_augs)
     print_to_log(info, log_name)

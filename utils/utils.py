@@ -68,14 +68,27 @@ class GaussianLayer(nn.Module):
         for _, f in self.named_parameters():
             f.data.copy_(torch.from_numpy(k))
 
+class NormalizedWrapper(nn.Module):
+    def __init__(self, model, mean, std):
+        super(NormalizedWrapper, self).__init__()
+        self.model = model
+        # std
+        std = torch.tensor(std).view(1, 3, 1, 1)
+        self.std = nn.Parameter(std, requires_grad=False)
+        # mean
+        mean = torch.tensor(mean).view(1, 3, 1, 1)
+        self.mean = nn.Parameter(mean, requires_grad=False)
+
+    def forward(self, x):
+        x = (x - self.mean) / self.std
+        return self.model(x)
+
 
 class AugWrapper(nn.Module):
-    def __init__(self, model, mean, std, flip=False, gauss_ps=None, n_crops=0,
-            flip_crop=False):
+    def __init__(self, model, flip=False, n_crops=0, flip_crop=False, 
+            gauss_ps=None):
         super(AugWrapper, self).__init__()
         self.model = model
-        self.std = nn.Parameter(std, requires_grad=False)
-        self.mean = nn.Parameter(mean, requires_grad=False)
         # transforms
         self.transforms = [lambda x: x] # the identity
         self.total_augs = self._init_augs(flip, n_crops, gauss_ps, flip_crop)
@@ -117,7 +130,6 @@ class AugWrapper(nn.Module):
 
 
     def forward(self, x):
-        x = (x - self.mean) / self.std
         x = torch.cat([t(x).unsqueeze(0) for t in self.transforms])
         x = x.view(-1, x.size(2), x.size(3), x.size(4))
         scores = self.model(x)
@@ -180,6 +192,7 @@ def get_rob_acc(model, testloader, device, cheap=False, seed=0):
             n += y.size(0)
         acc = 100. * total_acc / n
         pbar.set_description(f'Current robust acc: {acc:.4f}')
+        print('Max mem: ', torch.cuda.max_memory_allocated(device))
 
     acc = 100. * total_acc / n
     print(f'Robust acc: {acc:.4f}')

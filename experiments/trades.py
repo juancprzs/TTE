@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from utils.utils import NormalizedWrapper
 
 class BasicBlock(nn.Module):
     def __init__(self, in_planes, out_planes, stride, dropRate=0.0):
@@ -100,8 +101,12 @@ class WideResNet(nn.Module):
 
 def get_model():
     # https://github.com/yaodongyu/TRADES/blob/master/evaluate_attack_cifar10.py#L104
-    WEIGHTS_PATH = './weights/official_trades_cifar_wrn34_10.pth'
+    WEIGHTS_PATH = '../official_trades_cifar_wrn34_10.pth' # <- correct this later
     model = WideResNet()
+    # load weights
     model.load_state_dict(torch.load(WEIGHTS_PATH))
+    # place inside normalizing wrapper
+    std, mean = [1.0, 1.0, 1.0], [0.0, 0.0, 0.0]
+    model = NormalizedWrapper(model, mean, std)
     return model
 
