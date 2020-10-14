@@ -211,7 +211,7 @@ def get_rob_acc(model, testloader, device, batch_size, cheap=False, seed=0):
                 img, lab = img.to(device), lab.to(device)
                 output = model(img)
                 total_acc += (output.max(1)[1] == lab).sum().item()
-                n += y.size(0)
+                n += lab.size(0)
             
         accs.update({attack_name : 100. * total_acc / n})
 
