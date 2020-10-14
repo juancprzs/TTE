@@ -195,6 +195,11 @@ def get_rob_acc(model, testloader, device, cheap=False, seed=0):
         adversary.square.n_queries = 2
 
     import pdb; pdb.set_trace()
+    lll = [x for (x, y) in testloader]
+    x_test = torch.cat(lll, 0)
+    lll = [y for (x, y) in testloader]
+    y_test = torch.cat(lll, 0)
+    adv_complete = adversary.run_standard_evaluation(x_test, y_test, bs=500)
     n, total_acc = 0, 0
     pbar = tqdm(testloader)
     for _, (X, y) in enumerate(pbar):
