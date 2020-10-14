@@ -18,7 +18,7 @@ from torch.utils.data import DataLoader, random_split
 class DiffCrop(nn.Module):
     def __init__(self, inp_size=32, crop_size=32, pad_size=4):
         super(DiffCrop, self).__init__()
-        self.pad = tuple([pad_size for _ in range(4)])
+        self.pad = tuple([pad_size for _ in range(4)]) # udlr
         # get origins for x and y
         valid_init_limit = inp_size + int(2*pad_size) - crop_size
         self.orig_x = np.random.randint(valid_init_limit)
