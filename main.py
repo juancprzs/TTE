@@ -31,7 +31,7 @@ def get_model(experiment):
         model.load_state_dict(state_dict, strict=False)
     elif experiment == 'trades':
         from experiments.trades import get_model
-        model = get_model().
+        model = get_model()
 
     return model
 
@@ -42,7 +42,7 @@ def main(args):
 
     # Model
     model = get_model(args.experiment)
-    
+
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # Parameters for Gaussian (if any)
     if (args.gauss_k is not None) and (args.gauss_s is not None):
