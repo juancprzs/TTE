@@ -21,3 +21,7 @@ Also, install AutoAttack:
 ```bash
 pip install git+https://github.com/fra31/auto-attack
 ```
+And install `tqdm`
+```bash
+pip install tqdm
+```
