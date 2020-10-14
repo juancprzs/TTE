@@ -23,27 +23,27 @@ def set_seed(device, seed=111):
         torch.cuda.manual_seed_all(seed)
 
 
-def get_model(experiment):
+def get_model(experiment, device):
     if experiment == 'local_trades':
-        model = ResNet18(num_classes=10).to(DEVICE)
-        state_dict = torch.load(CKPT_NAME)['state_dict']
+        model = ResNet18(num_classes=10).to(device)
+        state_dict = torch.load(./weights/local_trades_best.pth)['state_dict']
         state_dict = { k.replace('model.' ,'') : v for k, v in state_dict.items() }
         model.load_state_dict(state_dict, strict=False)
     elif experiment == 'trades':
         from experiments.trades import get_model
-        model = get_model()
+        model = get_model().to(device)
 
     return model
 
 def main(args):
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-    CKPT_NAME = './weights/local_trades_best.pth'
+    CKPT_NAME = ''
     log_name = osp.join(args.checkpoint, 'ckpt_eval.csv')
     set_seed(DEVICE, args.seed)
 
     testloader = get_data_utils(test_samples=args.test_samples)
     # Model
-    model = get_model(args.experiment)
+    model = get_model(args.experiment, DEVICE)
     std = torch.tensor([1.0, 1.0, 1.0]).view(1, 3, 1, 1).to(DEVICE)
     mean = torch.tensor([0.0, 0.0, 0.0]).view(1, 3, 1, 1).to(DEVICE)
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
