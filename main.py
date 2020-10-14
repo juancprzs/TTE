@@ -26,7 +26,7 @@ def set_seed(device, seed=111):
 def get_model(experiment, device):
     if experiment == 'local_trades':
         model = ResNet18(num_classes=10).to(device)
-        state_dict = torch.load(./weights/local_trades_best.pth)['state_dict']
+        state_dict = torch.load('./weights/local_trades_best.pth')['state_dict']
         state_dict = { k.replace('model.' ,'') : v for k, v in state_dict.items() }
         model.load_state_dict(state_dict, strict=False)
     elif experiment == 'trades':
