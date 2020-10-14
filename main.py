@@ -48,18 +48,17 @@ def main(args):
     model_aug = AugWrapper(resnet, mean, std, flip=args.flip, gauss_ps=gauss_ps,
                            n_crops=args.n_crops, flip_crop=args.flip_crop)
     model_aug = model_aug.to(DEVICE)
+    
     # Print augmentations
     info = ','.join(model_aug.total_augs)
     print_to_log(info, log_name)
 
     clean_aug_acc = get_clean_acc(model_aug, testloader, DEVICE)
-
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     rob_aug_acc = get_rob_acc(model_aug, testloader, DEVICE, cheap=False, 
                               seed=args.seed)
 
-    info = f'{clean_aug_acc:4.2f},{rob_aug_acc:4.2f}'
-    print_to_log(info, log_name)
+    print_to_log(f'{clean_aug_acc:4.2f},{rob_aug_acc:4.2f}', log_name)
 
 
 if __name__ == "__main__":
