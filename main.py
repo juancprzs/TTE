@@ -45,7 +45,7 @@ def main(args):
     print_to_log(info, args.info_log)
 
     # Get adversary
-    adversary = get_adversary(model_aug, cheap=args.cheap)
+    adversary = get_adversary(model_aug, cheap=args.cheap, seed=args.seed)
 
     # de-facto GPU usage will be increased by num of transforms!
     batch_size = int(args.batch_size / (1 + len(model_aug.total_augs)))
