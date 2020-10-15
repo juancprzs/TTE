@@ -162,7 +162,7 @@ def get_data_utils(batch_size, test_samples=None, chunks=None, num_chunk=None):
         inds = np.linspace(0, tot_instances, chunks+1, dtype=int)
         start_ind, end_ind = inds[num_chunk-1], inds[num_chunk]
         import pdb; pdb.set_trace()
-        data = torch.cat([testset[i] for i in range(start_ind, end_ind)])
+        data = [testset[i] for i in range(start_ind, end_ind)]
         imgs = torch.cat([x.unsqueeze(0) for (x, y) in data], 0)
         labs = torch.cat([y.unsqueeze(0) for (x, y) in data], 0)
 
