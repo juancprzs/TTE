@@ -23,7 +23,7 @@ def parse_settings():
                         help='variance for Gaussian aug')
     parser.add_argument('--seed', type=int, default=0, 
                         help='for deterministic behavior')
-    parser.add_argument('--batch-size', type=int, default=500,
+    parser.add_argument('--batch-size', type=int, default=250,
                         help='batch size')
     parser.add_argument('--cheap', action='store_true', default=False,
                         help='whether to use cheap attack (useful for debug)')
@@ -32,7 +32,8 @@ def parse_settings():
     parser.add_argument('--num-chunk', type=int, default=None, 
                         help='index of chunk to evaluate on')
     parser.add_argument('--eval-files', action='store_true', default=False,
-		                help='evaluate files at checkpoint/results_chunk*of*_*to*.txt')
+		                help='evaluate based on files at '
+                             'checkpoint/logs/results_chunk*of*_*to*.txt')
     args = parser.parse_args()
 
     # Log path: verify existence of checkpoint dir, or create it
@@ -42,6 +43,10 @@ def parse_settings():
     args.adv_dir = osp.join(args.checkpoint, 'advs')
     if not osp.exists(args.adv_dir):
         os.makedirs(args.adv_dir)
+
+    args.logs_dir = osp.join(args.checkpoint, 'logs')
+    if not osp.exists(args.logs_dir):
+        os.makedirs(args.logs_dir)
 
     # txt file with all params
     chunk = 'all' if args.num_chunk is None else args.num_chunk

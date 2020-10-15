@@ -278,7 +278,7 @@ def save_results(advs, labels, accs, args, num_chunk, start_ind, end_ind):
     data = {'advs' : advs, 'labels' : labels} # advs is a dict
     torch.save(data, data_file)
     # Log stuff
-    log_file = osp.join(args.checkpoint, f'results_{filename}.txt')
+    log_file = osp.join(args.logs_dir, f'results_{filename}.txt')
     info = '\n'.join([f'{k}:{v}' if k == 'n_instances' else f'{k}:{v:4.2f}'
         for k, v in accs.items()])
     print_to_log(info, log_file)
