@@ -74,8 +74,8 @@ class NormalizedWrapper(nn.Module):
         super(NormalizedWrapper, self).__init__()
         self.model = model
         self.normalize = False
-        if mean is None:
-            assert std is None
+        if mean is not None:
+            assert std is not None
             self.normalize = True
             # std
             std = torch.tensor(std).view(1, 3, 1, 1)
