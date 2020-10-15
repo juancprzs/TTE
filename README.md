@@ -64,7 +64,14 @@ clean:84.30
 n_instances:1000
 ```
 * `info_chunk_all.txt`: a text file with the parameters with which this experiment was run. The `all` in the file's name refers to the fact that this experiment was _not_ run in chunks.
-* `results.txt`: a text file with the accuracy results of the run. *This is the file we care about!* Its contents are analogous to those of the text files under the `logs` dir. The only difference is that these are the results considering _all_ the chunks of data, instead of a particular one.
+* `results.txt`: a text file with the accuracy results of the run. *This is the file we care about!* Its contents are analogous to those of the text files under the `logs` dir. The only difference is that these are the results considering _all_ the chunks of data, instead of a particular one. For this experiment, you should get
+```bash
+apgd-ce:58.84
+square:81.51
+rob acc:58.84
+clean:84.92
+n_instances:10000
+```
 
 ### Chunked version
 To simulate the chunked version, run
@@ -81,5 +88,13 @@ We get the final results by running
 ```bash
 python main.py --checkpoint check2 --eval-files
 ```
-This line will compute the final results based on the logs of the form `check2/logs/results_chunk*of*_*to*.txt`. The results will be saved, as expected, at `check2/results.txt`.
+This line will compute the final results based on the logs of the form `check2/logs/results_chunk*of*_*to*.txt`. The results will be saved, as expected, at `check2/results.txt`. You should get
+```bash
+apgd-ce:58.84
+square:81.51
+rob acc:58.84
+clean:84.92
+n_instances:10000
+```
+Which is the same one would obtain by following the instructions from the previous section.
 
