@@ -285,7 +285,8 @@ def save_results(advs, labels, accs, args, num_chunk, start_ind, end_ind):
     print('Accuracies: \n', info)
 
     print(f'Evaluation for chunk {num_chunk} out of {args.chunks} finished. '
-          f'Adversaries saved to {data_file}. Log file saved to {log_file}.')
+          f'Adversaries saved to {data_file}. Log file saved to {log_file}.\n'
+          + 30 * '-' + '\n')
     
     return log_file
 
