@@ -238,7 +238,6 @@ def compute_accs(model, advs, labels, device, batch_size):
                 output = model(img)
                 pred = output.max(1)[1]
                 curr_preds.append(pred)
-                import pdb; pdb.set_trace()
                 total_corr += (pred == lab).sum().item()
 
         curr_preds = torch.cat(curr_preds)
@@ -246,6 +245,8 @@ def compute_accs(model, advs, labels, device, batch_size):
             
         curr_acc = 100. * total_corr / labels.size(0)
         accs.update({ attack_name : curr_acc })
+    
+    import pdb; pdb.set_trace()
 
     return accs
 
