@@ -56,7 +56,7 @@ def main(args):
 
         eval_files(log_files, args.final_results)
     else: # evaluate a single chunk and exit
-        log_file = eval_chunk(model_aug, adversary, batch_size, args.chunks, 
+        log_file = eval_chunk(model_aug, batch_size, args.chunks, 
                               args.num_chunk, DEVICE, args)
         sys.exit()
 

@@ -298,7 +298,6 @@ def eval_chunk(model, batch_size, chunks, num_chunk, device, args):
     # Compute adversarial instances
     advs, labels = compute_advs(model, testloader, device, batch_size, 
                                 args.cheap, args.seed)
-    import pdb; pdb.set_trace()
     # Compute robustness
     accs = compute_adv_accs(model, advs, labels, device, batch_size)
     # Send everything to file
