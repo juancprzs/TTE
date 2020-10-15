@@ -67,9 +67,16 @@ def main(args):
     # Rob acc
     advs, accs = compute_advs(model_aug, testloader, DEVICE, batch_size, 
                               cheap=True, seed=args.seed)
+
+    # Send everything to file
     accs.update({ 'clean' : clean_acc })
+    info = '\n'.join([f'{k}:{v:4.2f}' for k, v in accs.items()])
     import pdb; pdb.set_trace()
-    print_to_log(f'{clean_acc:4.2f},{rob_acc:4.2f}', log_name)
+    print_to_log(info, log_name)
+    print('Accuracies: ', info)
+
+    # Save adversaries
+    torch.save(advs, osp.join(args.checkpoint, 'advs'))
 
 
 if __name__ == "__main__":
