@@ -37,7 +37,7 @@ def get_model(experiment):
 
 def main(args):
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-    log_name = osp.join(args.checkpoint, 'ckpt_eval.csv')
+    log_name = osp.join(args.checkpoint, 'ckpt_eval.txt')
     set_seed(DEVICE, args.seed)
 
     # Model
@@ -66,7 +66,7 @@ def main(args):
 
     # Rob acc
     advs, accs = compute_advs(model_aug, testloader, DEVICE, batch_size, 
-                              cheap=True, seed=args.seed)
+                              cheap=False, seed=args.seed)
 
     # Send everything to file
     accs.update({ 'clean' : clean_acc })
@@ -75,7 +75,7 @@ def main(args):
     print('Accuracies: \n', info)
 
     # Save adversaries
-    torch.save(advs, osp.join(args.checkpoint, 'advs'))
+    torch.save(advs, osp.join(args.checkpoint, 'advs.pth')) # advs is a dict
 
 
 if __name__ == "__main__":
