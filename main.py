@@ -7,7 +7,7 @@ import os.path as osp
 import torch.backends.cudnn as cudnn
 
 from utils.utils import (get_data_utils, AugWrapper, get_model, print_to_log, 
-                         get_adversary, eval_chunk, eval_files)
+                         eval_chunk, eval_files)
 
 # For deterministic behavior
 cudnn.benchmark = False
@@ -43,9 +43,6 @@ def main(args):
     info = ','.join(model_aug.total_augs)
     print_to_log(info, args.info_log)
 
-    # Get adversary
-    adversary = get_adversary(model_aug, cheap=args.cheap, seed=args.seed)
-
     # de-facto GPU usage will be increased by num of transforms!
     batch_size = int(args.batch_size / (1 + len(model_aug.total_augs)))
 
@@ -53,8 +50,8 @@ def main(args):
     if args.num_chunk is None: # evaluate sequentially
         log_files = []
         for num_chunk in range(1, args.chunks+1):
-            log_file = eval_chunk(model_aug, adversary, batch_size, args.chunks,
-                                  num_chunk, DEVICE, args)
+            log_file = eval_chunk(model_aug, batch_size, args.chunks, num_chunk,
+                                  DEVICE, args)
             log_files.append(log_file)
 
         eval_files(log_files, args.final_results)

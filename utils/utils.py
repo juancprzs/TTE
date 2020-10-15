@@ -186,7 +186,7 @@ def get_adversary(model, cheap, seed):
     adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=False)
     adversary.seed = seed
     if cheap:
-        print('Running CHEAP attack')
+        # print('Running CHEAP attack')
         # based on
         # https://github.com/fra31/auto-attack/blob/master/autoattack/autoattack.py#L230
         # adversary.attacks_to_run = ['apgd-ce', 'apgd-t', 'fab-t', 'square']
@@ -201,8 +201,9 @@ def get_adversary(model, cheap, seed):
 
     return adversary
 
-def compute_advs(model, testloader, device, batch_size, adversary):
+def compute_advs(model, testloader, device, batch_size, cheap, seed):
     model.eval()
+    adversary = get_adversary(model, cheap, seed)
     imgs = torch.cat([x for (x, y) in testloader], 0)
     labs = torch.cat([y for (x, y) in testloader], 0)
     advs = adversary.run_standard_evaluation_individual(imgs, labs, 
@@ -289,14 +290,14 @@ def save_results(advs, labels, accs, args, num_chunk, start_ind, end_ind):
     return log_file
 
 
-def eval_chunk(model, adversary, batch_size, chunks, num_chunk, device, args):
+def eval_chunk(model, batch_size, chunks, num_chunk, device, args):
     testloader, start_ind, end_ind = get_data_utils(batch_size, chunks, 
                                                     num_chunk)
     # Clean acc
     clean_acc = get_clean_acc(model, testloader, device)
     # Compute adversarial instances
     advs, labels = compute_advs(model, testloader, device, batch_size, 
-                                adversary)
+                                args.cheap, args.seed)
     import pdb; pdb.set_trace()
     # Compute robustness
     accs = compute_adv_accs(model, advs, labels, device, batch_size)
