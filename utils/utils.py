@@ -299,7 +299,7 @@ def eval_chunk(model, adversary, batch_size, chunks, num_chunk, device, args):
     # Compute robustness
     accs = compute_adv_accs(model, advs, labels, device, batch_size)
     # Send everything to file
-    accs.update({ 'clean' : clean_acc , 'n_instances' : len(testloader) })
+    accs.update({'clean' : clean_acc , 'n_instances' : len(testloader.dataset)})
     log_file = save_results(advs, labels, accs, args, num_chunk, start_ind,
                              end_ind)
 
