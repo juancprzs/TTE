@@ -225,6 +225,7 @@ def get_rob_acc(model, testloader, device, batch_size, cheap=False, seed=0):
 
 def compute_accs(model, advs, labels, device, batch_size):
     accs = {}
+    all_preds = []
     for attack_name, curr_advs in advs.items():
         dataset = TensorDataset(curr_advs, labels)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, 
@@ -234,7 +235,9 @@ def compute_accs(model, advs, labels, device, batch_size):
             for img, lab in dataloader:
                 img, lab = img.to(device), lab.to(device)
                 output = model(img)
-                total_acc += (output.max(1)[1] == lab).sum().item()
+                pred = output.max(1)[1]
+                import pdb; pdb.set_trace()
+                total_acc += (pred == lab).sum().item()
                 n += lab.size(0)
             
         curr_acc = 100. * total_acc / n
