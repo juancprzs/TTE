@@ -66,7 +66,7 @@ if __name__ == "__main__":
     args = parse_settings()
     if args.eval_files:
         from glob import glob
-        log_files = glob(osp.join(args.checkpoint, 
+        log_files = glob(osp.join(args.logs_dir, 
                          'results_chunk*of*_*to*.txt'))
         eval_files(log_files, args.final_results)
         sys.exit()
