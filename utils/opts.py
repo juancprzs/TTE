@@ -31,8 +31,8 @@ def parse_settings():
                         help='num of chunks in which to break the dataset')
     parser.add_argument('--num-chunk', type=int, default=None, 
                         help='index of chunk to evaluate on')
-    parser.add_argument('--files-eval', type=int, nargs='+', default=None,
-		                help='files to evaluate')
+    parser.add_argument('--eval-files', action='store_true', default=False,
+		                help='evaluate files at checkpoint/results_chunk*of*_*to*.txt')
     args = parser.parse_args()
 
     # Log path: verify existence of checkpoint dir, or create it

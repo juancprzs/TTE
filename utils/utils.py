@@ -282,11 +282,12 @@ def save_results(advs, labels, accs, args, num_chunk, start_ind, end_ind):
     info = '\n'.join([f'{k}:{v}' if k == 'n_instances' else f'{k}:{v:4.2f}'
         for k, v in accs.items()])
     print_to_log(info, log_file)
-    print('Accuracies: \n', info)
+    print('==> Accuracies: \n', info)
 
-    print(f'Evaluation for chunk {num_chunk} out of {args.chunks} finished. '
-          f'Adversaries saved to {data_file}. Log file saved to {log_file}.\n'
-          + 30 * '-' + '\n')
+    print(f'Evaluation for chunk {num_chunk} out of {args.chunks} finished.\n'
+          f'==> Adversaries saved to {data_file}.\n'
+          f'==> Log file saved to {log_file}.\n'
+          + 50 * '-' + '\n')
     
     return log_file
 
@@ -310,6 +311,7 @@ def eval_chunk(model, batch_size, chunks, num_chunk, device, args):
 
 
 def eval_files(log_files, final_log):
+    print(f'Evaluating based on these {len(log_files)} files: ', log_files)
     tot_instances = 0
     tot_corr = {}
     for log_file in log_files:
