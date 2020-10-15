@@ -24,6 +24,8 @@ def parse_settings():
                         help='num of test instances to use')
     parser.add_argument('--batch-size', type=int, default=500,
                         help='batch size')
+    parser.add_argument('--cheap', action='store_true', default=False,
+                        help='whether to use cheap attack (useful for debug)')
     args = parser.parse_args()
 
     return args

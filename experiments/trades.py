@@ -101,12 +101,11 @@ class WideResNet(nn.Module):
 
 def get_model():
     # https://github.com/yaodongyu/TRADES/blob/master/evaluate_attack_cifar10.py#L104
-    WEIGHTS_PATH = '../official_trades_cifar_wrn34_10.pth' # <- correct this later
+    WEIGHTS_PATH = './weights/official_trades_cifar_wrn34_10.pth' # <- correct this later
     model = WideResNet()
     # load weights
     model.load_state_dict(torch.load(WEIGHTS_PATH))
     # place inside normalizing wrapper
-    std, mean = [1.0, 1.0, 1.0], [0.0, 0.0, 0.0]
-    model = NormalizedWrapper(model, mean, std)
+    model = NormalizedWrapper(model, mean=None, std=None) # no normalization!
     return model
 

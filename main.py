@@ -4,10 +4,9 @@ import random
 import argparse
 import numpy as np
 import os.path as osp
-from utils.resnet import ResNet18
 import torch.backends.cudnn as cudnn
 
-from utils.utils import (get_data_utils, AugWrapper, get_clean_acc, 
+from utils.utils import (get_data_utils, AugWrapper, get_clean_acc, get_model,
                          compute_advs, print_to_log, print_training_params)
 
 # For deterministic behavior
@@ -23,21 +22,8 @@ def set_seed(device, seed=111):
         torch.cuda.manual_seed_all(seed)
 
 
-def get_model(experiment):
-    if experiment == 'local_trades':
-        model = ResNet18(num_classes=10)
-        state_dict = torch.load('./weights/local_trades_best.pth')['state_dict']
-        state_dict = { k.replace('model.' ,'') : v for k, v in state_dict.items() }
-        model.load_state_dict(state_dict, strict=False)
-    elif experiment == 'trades':
-        from experiments.trades import get_model
-        model = get_model()
-
-    return model
-
 def main(args):
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-    log_name = osp.join(args.checkpoint, 'ckpt_eval.txt')
     set_seed(DEVICE, args.seed)
 
     # Model
@@ -59,19 +45,19 @@ def main(args):
 
     # Print augmentations
     info = ','.join(model_aug.total_augs)
-    print_to_log(info, log_name)
+    print_to_log(info, args.log_name)
 
     # Clean acc
     clean_acc = get_clean_acc(model_aug, testloader, DEVICE)
 
     # Rob acc
     advs, accs = compute_advs(model_aug, testloader, DEVICE, batch_size, 
-                              cheap=False, seed=args.seed)
+                              cheap=args.cheap, seed=args.seed)
 
     # Send everything to file
     accs.update({ 'clean' : clean_acc })
     info = '\n'.join([f'{k}:{v:4.2f}' for k, v in accs.items()])
-    print_to_log(info, log_name)
+    print_to_log(info, args.log_name)
     print('Accuracies: \n', info)
 
     # Save adversaries
@@ -85,6 +71,13 @@ if __name__ == "__main__":
     # Log path: verify existence of checkpoint dir, or create it
     if not osp.exists(args.checkpoint):
         os.makedirs(args.checkpoint)
+
+    args.adv_dir = osp.join(args.checkpoint, 'advs')
+    if not osp.exists(args.adv_dir):
+        os.makedirs(args.adv_dir)
+
+    # log
+    args.log_name = osp.join(args.checkpoint, 'ckpt_eval.txt')
 
     # txt file with all params
     print_training_params(args, osp.join(args.checkpoint, 'params.txt'))

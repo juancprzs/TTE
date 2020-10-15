@@ -248,3 +248,18 @@ def print_training_params(args, txt_file_path):
     # Print to log and console
     print_to_log(text, txt_file_path)
     print(text)
+
+
+def get_model(experiment):
+    if experiment == 'local_trades':
+        from utils.resnet import ResNet18
+        model = ResNet18(num_classes=10)
+        state_dict = torch.load('./weights/local_trades_best.pth')['state_dict']
+        state_dict = { k.replace('model.' ,'') : v 
+            for k, v in state_dict.items() }
+        model.load_state_dict(state_dict, strict=False)
+    elif experiment == 'trades':
+        from experiments.trades import get_model
+        model = get_model()
+
+    return model
