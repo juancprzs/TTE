@@ -16,5 +16,4 @@
 python main.py \
 --checkpoint runs/distributed_flip \
 --num-chunk ${SLURM_ARRAY_TASK_ID} \
---flip \
---batch-size 250
+--flip
