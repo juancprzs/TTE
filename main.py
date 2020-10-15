@@ -73,7 +73,7 @@ def main(args):
     info = '\n'.join([f'{k}:{v:4.2f}' for k, v in accs.items()])
     import pdb; pdb.set_trace()
     print_to_log(info, log_name)
-    print('Accuracies: ', info)
+    print('Accuracies: \n', info)
 
     # Save adversaries
     torch.save(advs, osp.join(args.checkpoint, 'advs'))
