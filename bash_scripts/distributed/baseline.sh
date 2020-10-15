@@ -15,4 +15,5 @@
 
 python main.py \
 --checkpoint runs/distributed_baseline \
---num-chunk ${SLURM_ARRAY_TASK_ID}
+--num-chunk ${SLURM_ARRAY_TASK_ID} \
+--batch-size 250
