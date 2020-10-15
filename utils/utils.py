@@ -325,6 +325,7 @@ def eval_files(log_files, final_log):
 
     accs = {atck : float(corr)/tot_instances for atck, corr in tot_corr.items()}
     accs.update({ 'n_instances' : tot_instances })
-    info = '\n'.join([f'{k}:{v:4.2f}' for k, v in accs.items()])
+    info = '\n'.join([f'{k}:{v}' if k == 'n_instances' else f'{k}:{v:4.2f}'
+        for k, v in accs.items()])
     print_to_log(info, final_log)
     print(f'Saved all results to {final_log}')

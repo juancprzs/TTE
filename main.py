@@ -6,8 +6,7 @@ import numpy as np
 import os.path as osp
 import torch.backends.cudnn as cudnn
 
-from utils.utils import (get_data_utils, AugWrapper, get_clean_acc, get_model,
-                         compute_advs, print_to_log, compute_adv_accs,
+from utils.utils import (get_data_utils, AugWrapper, get_model, print_to_log, 
                          get_adversary, eval_chunk, eval_files)
 
 # For deterministic behavior
