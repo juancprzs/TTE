@@ -145,31 +145,25 @@ class AugWrapper(nn.Module):
         return scores
 
 
-def get_data_utils(batch_size, test_samples=None, chunks=None, num_chunk=None):
-    testset = CIFAR10(root='./data', train=False, download=True,
+def get_data_utils(batch_size, chunks, num_chunk):
+    dataset = CIFAR10(root='./data', train=False, download=True,
                       transform=Compose([ToTensor()]))
-    tot_instances = len(testset)
-    if (test_samples is not None) and (test_samples < tot_instances):
-        remaining = tot_instances - test_samples
-        assert remaining > 0
-        print(f'Using {test_samples} samples only!')
-        generator = torch.Generator().manual_seed(111) # for reproducibility
-        testset, _ = random_split(testset, [test_samples, remaining], 
-                                  generator=generator)
-    
-    if (chunks is not None) and (num_chunk is not None):
-        assert 1 <= num_chunk <= chunks
-        inds = np.linspace(0, tot_instances, chunks+1, dtype=int)
-        start_ind, end_ind = inds[num_chunk-1], inds[num_chunk]
-        import pdb; pdb.set_trace()
-        data = [testset[i] for i in range(start_ind, end_ind)]
-        imgs = torch.cat([x.unsqueeze(0) for (x, y) in data], 0)
-        labs = torch.cat([torch.tensor(y).unsqueeze(0) for (x, y) in data], 0)
+    tot_instances = len(dataset)
+    assert 1 <= num_chunk <= chunks
+    assert tot_instances % chunks == 0
+    # inds of current chunk
+    inds = np.linspace(0, tot_instances, chunks+1, dtype=int)
+    start_ind, end_ind = inds[num_chunk-1], inds[num_chunk]
+    # extract data and put in new dataset
+    data = [testset[i] for i in range(start_ind, end_ind)]
+    imgs = torch.cat([x.unsqueeze(0) for (x, y) in data], 0)
+    labels = torch.cat([torch.tensor(y).unsqueeze(0) for (x, y) in data], 0)
+    testset = TensorDataset(imgs, labels)
 
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, 
                             num_workers=2, pin_memory=True, drop_last=False)
 
-    return testloader
+    return testloader, start_ind, end_ind
 
 
 def get_clean_acc(model, testloader, device):
@@ -187,7 +181,7 @@ def get_clean_acc(model, testloader, device):
     return acc
 
 
-def compute_advs(model, testloader, device, batch_size, cheap=False, seed=0):
+def get_adversary(model, cheap):
     model.eval()
     adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=True)
     adversary.seed = seed
@@ -205,15 +199,17 @@ def compute_advs(model, testloader, device, batch_size, cheap=False, seed=0):
         adversary.apgd_targeted.n_target_classes = 2
         adversary.square.n_queries = 2
 
+    return adversary
+
+def compute_advs(model, testloader, device, batch_size, adversary):
+    model.eval()
     imgs = torch.cat([x for (x, y) in testloader], 0)
     labs = torch.cat([y for (x, y) in testloader], 0)
     advs = adversary.run_standard_evaluation_individual(imgs, labs, 
                                                         bs=batch_size)
-    
-    accs = compute_accs(model, advs, labs, device, batch_size)
-    return advs, accs
+    return advs, labs
 
-def compute_accs(model, advs, labels, device, batch_size):
+def compute_adv_accs(model, advs, labels, device, batch_size):
     accs = {}
     all_preds = []
     for attack_name, curr_advs in advs.items():
@@ -272,3 +268,63 @@ def get_model(experiment):
         model = get_model()
 
     return model
+
+
+def save_results(advs, labels, accs, args, num_chunk, start_ind, end_ind):
+    filename = f'{num_chunk}_{args.chunks}_{start_ind}_{end_ind}'
+    # Save adversaries to file
+    data_file = osp.join(args.adv_dir, f'advs_{filename}.pth')
+    data = {'advs' : advs, 'labels' : labels} # advs is a dict
+    torch.save(data, data_file)
+    # Log stuff
+    log_file = osp.join(args.checkpoint, f'results_{filename}.txt')
+    info = '\n'.join([f'{k}:{v:4.2f}' for k, v in accs.items()])
+    print_to_log(info, log_file)
+    print('Accuracies: \n', info)
+
+    print(f'Evaluation for chunk {num_chunk} out of {args.chunks} finished. '
+          f'Adversaries saved to {data_file}. Log file saved to {log_file}.')
+    
+    return log_file
+
+
+def eval_chunk(model, adversary, batch_size, chunks, num_chunk, device, args):
+    testloader, start_ind, end_ind = get_data_utils(batch_size, chunks, 
+                                                    num_chunk)
+    # Clean acc
+    clean_acc = get_clean_acc(model, testloader, device)
+    # Compute adversarial instances
+    advs, labels = compute_advs(model, testloader, device, batch_size, 
+                                adversary)
+    # Compute robustness
+    accs = compute_adv_accs(model, advs, labels, device, batch_size)
+    # Send everything to file
+    accs.update({ 'clean' : clean_acc , 'n_instances' : len(testloader) })
+    log_file = save_results(advs, labels, accs, args, num_chunk, start_ind,
+                             end_ind)
+
+    return log_file
+
+
+def eval_files(log_files, final_log):
+    tot_instances = 0
+    tot_corr = {}
+    for log_file in log_files:
+        with open(log_file, 'r') as f:
+            lines = f.readlines()
+        lines = [l.strip() for l in lines]
+        data = { l.split(':')[0] : float(l.split(':')[1]) for l in lines }
+        instances = int(data.pop('n_instances'))
+        tot_instances += instances
+        for atck, acc in data.items():
+            corr = acc * instances
+            if atck in tot_corr:
+                tot_corr[atck] += corr
+            else:
+                tot_corr[atck] = corr
+
+    accs = {atck : float(corr)/tot_instances for atck, corr in tot_corr.items()}
+    accs.update({ 'n_instances' : tot_instances })
+    info = '\n'.join([f'{k}:{v:4.2f}' for k, v in accs.items()])
+    print_to_log(info, final_log)
+    print(f'Saved all results to {final_log}')
