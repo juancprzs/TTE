@@ -66,7 +66,7 @@ clean:84.30
 n_instances:1000
 ```
 * `info_chunk_all.txt`: a text file with the parameters with which this experiment was run. The `all` in the file's name refers to the fact that this experiment was _not_ run in chunks.
-* `results.txt`: a text file with the accuracy results of the run. *This is the file we care about!* Its contents are analogous to those of the text files under the `logs` dir. The only difference is that these are the results considering _all_ the chunks of data, instead of a particular one. For this experiment, you should get
+* `results.txt`: a text file with the accuracy results of the run. **This is the file we care about!** Its contents are analogous to those of the text files under the `logs` dir. The only difference is that these are the results considering _all_ the chunks of data, instead of a particular one. For this experiment, you should get
 ```bash
 apgd-ce:58.84
 square:81.51
