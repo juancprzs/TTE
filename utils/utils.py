@@ -170,7 +170,7 @@ def get_clean_acc(model, testloader, device):
     model.eval()
     n, total_acc = 0, 0
     with torch.no_grad():
-        for X, y in tqdm(testloader):
+        for X, y in testloader:
             X, y = X.to(device), y.to(device)
             output = model(X)
             total_acc += (output.max(1)[1] == y).sum().item()
@@ -183,7 +183,7 @@ def get_clean_acc(model, testloader, device):
 
 def get_adversary(model, cheap, seed):
     model.eval()
-    adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=True)
+    adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=False)
     adversary.seed = seed
     if cheap:
         print('Running CHEAP attack')
