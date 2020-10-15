@@ -181,7 +181,7 @@ def get_clean_acc(model, testloader, device):
     return acc
 
 
-def get_adversary(model, cheap):
+def get_adversary(model, cheap, seed):
     model.eval()
     adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=True)
     adversary.seed = seed
