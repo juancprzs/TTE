@@ -64,11 +64,11 @@ def main(args):
 if __name__ == "__main__":
     from utils.opts import parse_settings
     args = parse_settings()
-    if args.files_eval:
+    if args.eval_files:
         from glob import glob
         log_files = glob(osp.join(args.checkpoint, 
                          'results_chunk*of*_*to*.txt'))
-        eval_files(args.files_eval, args.final_results)
+        eval_files(log_files, args.final_results)
         sys.exit()
     else:
         main(args)
