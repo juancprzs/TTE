@@ -2,9 +2,9 @@
 #SBATCH -N 1
 #SBATCH --partition=batch
 #SBATCH --array=[1-10]
-#SBATCH -J baseline
-#SBATCH -o logs/baseline.%J.out
-#SBATCH -e logs/baseline.%J.err
+#SBATCH -J dist_baseline
+#SBATCH -o logs/dist_baseline.%J.out
+#SBATCH -e logs/dist_baseline.%J.err
 #SBATCH --time=4:00:00
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:1

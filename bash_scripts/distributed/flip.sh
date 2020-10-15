@@ -2,9 +2,9 @@
 #SBATCH -N 1
 #SBATCH --partition=batch
 #SBATCH --array=[1-10]
-#SBATCH -J flip
-#SBATCH -o logs/flip.%J.out
-#SBATCH -e logs/flip.%J.err
+#SBATCH -J dist_flip
+#SBATCH -o logs/dist_flip.%J.out
+#SBATCH -e logs/dist_flip.%J.err
 #SBATCH --time=4:00:00
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:1
