@@ -155,7 +155,7 @@ def get_data_utils(batch_size, chunks, num_chunk):
     inds = np.linspace(0, tot_instances, chunks+1, dtype=int)
     start_ind, end_ind = inds[num_chunk-1], inds[num_chunk]
     # extract data and put in new dataset
-    data = [testset[i] for i in range(start_ind, end_ind)]
+    data = [dataset[i] for i in range(start_ind, end_ind)]
     imgs = torch.cat([x.unsqueeze(0) for (x, y) in data], 0)
     labels = torch.cat([torch.tensor(y).unsqueeze(0) for (x, y) in data], 0)
     testset = TensorDataset(imgs, labels)
