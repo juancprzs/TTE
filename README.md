@@ -80,7 +80,7 @@ for i in {1..10}; do
     python main.py --checkpoint check2 --cheap --num-chunk $i; 
 done
 ```
-Besides two differences, running these lines will produce results similar to those in the previous section. The two differences are the following:
+Besides two minor differences, running these lines will produce the _same_ results as the previous section. The two differences are the following:
 * There will not only one file with the parameters, there will be several files of the form `info_chunk_X.txt` (instead of `info_chunk_all.txt`). This is because, technically, it wasn't a single run of the `main.py` script. Of course, _all_ these files should have _exactly_ the same contents.
 * There is no `results.txt` file. We have to generate it based on all the logs at the `logs` directory.
 
