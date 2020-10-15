@@ -246,7 +246,12 @@ def compute_accs(model, advs, labels, device, batch_size):
         curr_acc = 100. * total_corr / labels.size(0)
         accs.update({ attack_name : curr_acc })
     
-    import pdb; pdb.set_trace()
+    # compute worst case for each image
+    all_preds = torch.cat([x.unsqueeze(0) for x in all_preds])
+    temp_labels = labels.unsqueeze(0).expand(len(advs), -1).to(device)
+    where_all_correct = torch.prod(all_preds==temp_labels, dim=0) # logical AND
+    worst_acc = 100. * where_all_correct.sum().item() / labels.size(0)
+    accs.update({ 'rob acc' : worst_acc })
 
     return accs
 
