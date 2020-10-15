@@ -178,9 +178,9 @@ def get_clean_acc(model, testloader, device):
     return acc
 
 
-def get_rob_acc(model, testloader, device, batch_size, cheap=False, seed=0):
+def compute_advs(model, testloader, device, batch_size, cheap=False, seed=0):
     model.eval()
-    adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=True)
+    adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=False)
     adversary.seed = seed
     if cheap:
         print('Running CHEAP attack')
@@ -200,27 +200,8 @@ def get_rob_acc(model, testloader, device, batch_size, cheap=False, seed=0):
     labs = torch.cat([y for (x, y) in testloader], 0)[:600]
     advs = adversary.run_standard_evaluation_individual(imgs, labs, 
                                                         bs=batch_size)
-
-
-    adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=True)
-    if cheap:
-        print('Running CHEAP attack')
-        # based on
-        # https://github.com/fra31/auto-attack/blob/master/autoattack/autoattack.py#L230
-        # adversary.attacks_to_run = ['apgd-ce', 'apgd-t', 'fab-t', 'square']
-        adversary.attacks_to_run = ['apgd-ce', 'square']
-        adversary.apgd.n_iter = 2
-        adversary.apgd.n_restarts = 1
-        adversary.fab.n_restarts = 1
-        adversary.apgd_targeted.n_restarts = 1
-        adversary.fab.n_target_classes = 2
-        adversary.apgd_targeted.n_target_classes = 2
-        adversary.square.n_queries = 2
-    other_advs = adversary.run_standard_evaluation(imgs, labs, bs=batch_size)
     
     accs = compute_accs(model, advs, labs, device, batch_size)
-
-    import pdb; pdb.set_trace()
     return advs, accs
 
 def compute_accs(model, advs, labels, device, batch_size):
