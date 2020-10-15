@@ -230,17 +230,21 @@ def compute_accs(model, advs, labels, device, batch_size):
         dataset = TensorDataset(curr_advs, labels)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False, 
                                 num_workers=1, pin_memory=True, drop_last=False)
-        n, total_acc = 0, 0
+        total_corr = 0
+        curr_preds = []
         with torch.no_grad():
             for img, lab in dataloader:
                 img, lab = img.to(device), lab.to(device)
                 output = model(img)
                 pred = output.max(1)[1]
+                curr_preds.append(pred)
                 import pdb; pdb.set_trace()
-                total_acc += (pred == lab).sum().item()
-                n += lab.size(0)
+                total_corr += (pred == lab).sum().item()
+
+        curr_preds = torch.cat(curr_preds)
+        all_preds.append(curr_preds)
             
-        curr_acc = 100. * total_acc / n
+        curr_acc = 100. * total_corr / labels.size(0)
         accs.update({ attack_name : curr_acc })
 
     return accs
