@@ -26,6 +26,10 @@ def parse_settings():
                         help='batch size')
     parser.add_argument('--cheap', action='store_true', default=False,
                         help='whether to use cheap attack (useful for debug)')
+    parser.add_argument('--chunks', type=int, default=None, 
+                        help='num of chunks in which to break the dataset')
+    parser.add_argument('--num-chunk', type=int, default=None, 
+                        help='index of chunk to evaluate on')
     args = parser.parse_args()
 
     return args

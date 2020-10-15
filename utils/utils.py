@@ -145,7 +145,7 @@ class AugWrapper(nn.Module):
         return scores
 
 
-def get_data_utils(test_samples=None, batch_size=50):
+def get_data_utils(batch_size, test_samples=None, chunks=None, num_chunk=None):
     testset = CIFAR10(root='./data', train=False, download=True,
                       transform=Compose([ToTensor()]))
     tot_instances = len(testset)
@@ -157,6 +157,9 @@ def get_data_utils(test_samples=None, batch_size=50):
         testset, _ = random_split(testset, [test_samples, remaining], 
                                   generator=generator)
     
+    if (chunks is not None) and (num_chunk is not None):
+        import pdb; pdb.set_trace()
+
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, 
                             num_workers=2, pin_memory=True, drop_last=False)
 

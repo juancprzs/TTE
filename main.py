@@ -41,7 +41,8 @@ def main(args):
 
     # de-facto GPU usage will be increased by num of transforms!
     batch_size = int(args.batch_size / (1 + len(model_aug.total_augs)))
-    testloader = get_data_utils(args.test_samples, batch_size)
+    testloader = get_data_utils(batch_size, args.test_samples, args.chunks, 
+                                args.num_chunk)
 
     # Print augmentations
     info = ','.join(model_aug.total_augs)
