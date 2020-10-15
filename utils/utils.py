@@ -271,7 +271,7 @@ def get_model(experiment):
 
 
 def save_results(advs, labels, accs, args, num_chunk, start_ind, end_ind):
-    filename = f'{num_chunk}_{args.chunks}_{start_ind}_{end_ind}'
+    filename = f'chunk{num_chunk}of{args.chunks}_{start_ind}to{end_ind}'
     # Save adversaries to file
     data_file = osp.join(args.adv_dir, f'advs_{filename}.pth')
     data = {'advs' : advs, 'labels' : labels} # advs is a dict

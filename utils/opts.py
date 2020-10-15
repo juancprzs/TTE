@@ -23,8 +23,6 @@ def parse_settings():
                         help='variance for Gaussian aug')
     parser.add_argument('--seed', type=int, default=0, 
                         help='for deterministic behavior')
-    parser.add_argument('--test-samples', type=int, default=None, 
-                        help='num of test instances to use')
     parser.add_argument('--batch-size', type=int, default=500,
                         help='batch size')
     parser.add_argument('--cheap', action='store_true', default=False,
