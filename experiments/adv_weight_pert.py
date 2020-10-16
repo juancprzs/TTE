@@ -96,7 +96,7 @@ def get_model():
     WEIGHTS_PATH = './weights/newmodel1_RST-AWP_cifar10_linf_wrn28-10.pt'
     model = WideResNet(depth=28, num_classes=10, widen_factor=10)
     # load weights
-    model.load_state_dict(torch.load(WEIGHTS_PATH))
+    model.load_state_dict(torch.load(WEIGHTS_PATH)['state_dict'])
     # place inside normalizing wrapper
     # check
     # https://github.com/csdongxian/AWP/blob/main/auto_attacks/eval.py#L75
