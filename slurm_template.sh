@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH --partition=batch
-#SBATCH --array=[1-20]
+#SBATCH --array=[1-25]
 #SBATCH -J chunked_baseline
 #SBATCH -o logs/chunked_baseline.%J.out
 #SBATCH -e logs/chunked_baseline.%J.err
@@ -16,4 +16,4 @@
 python main.py \
 --checkpoint runs/chunked_baseline \
 --num-chunk ${SLURM_ARRAY_TASK_ID} \
---chunks 20
+--chunks 25

@@ -267,6 +267,9 @@ def get_model(experiment):
     elif experiment == 'trades':
         from experiments.trades import get_model
         model = get_model()
+    elif experiment == 'awp': # Adversarial Weight Perturbation
+        from experiments.adv_weight_pert import get_model
+        model = get_model()
 
     return model
 
