@@ -40,7 +40,7 @@ Then set it up by running
 git lfs install
 ```
 
-And do a `git pull` inside the repo. Then go check whether the files inside the `weights` directory are actual files (not just pointers). You can check that by taking a look at the size of the files: if the files are like 4kB, they are pointers, otherwise, they are the actual weights. Run `du -sh weights/*.pth` to check.
+And do a `git-lfs pull` inside the repo. Then go check whether the files inside the `weights` directory are actual files (not just pointers). You can check that by taking a look at the size of the files: if the files are like 4kB, they are pointers, otherwise, they are the actual weights. Run `du -sh weights/*.pth` to check.
 
 ## Results
 The spreadsheet is [here](https://docs.google.com/spreadsheets/d/13iskg4cQlvAgvLB3HvPuq5tRlykhMZMDv_uHKHUxeZo/edit#gid=0).
