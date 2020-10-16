@@ -96,8 +96,7 @@ def get_model():
     WEIGHTS_PATH = './weights/newmodel1_RST-AWP_cifar10_linf_wrn28-10.pt'
     model = WideResNet(depth=28, num_classes=10, widen_factor=10)
     # load weights
-    state_dict = torch.load(WEIGHTS_PATH)['state_dict']
-    state_dict = { k.replace('module.', '') : v for k, v in state_dict.items() }
+    state_dict = filter_state_dict(torch.load(WEIGHTS_PATH))
     model.load_state_dict(state_dict)
     # place inside normalizing wrapper
     # check
@@ -105,4 +104,17 @@ def get_model():
     model = NormalizedWrapper(model, mean=None, std=None) # no normalization!
     return model
 
+def filter_state_dict(state_dict):
+    from collections import OrderedDict
 
+    if 'state_dict' in state_dict.keys():
+        state_dict = state_dict['state_dict']
+    new_state_dict = OrderedDict()
+    for k, v in state_dict.items():
+        if 'sub_block' in k:
+            continue
+        if 'module' in k:
+            new_state_dict[k[7:]] = v
+        else:
+            new_state_dict[k] = v
+    return new_state_dict
