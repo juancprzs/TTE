@@ -38,15 +38,15 @@ def parse_settings():
 
     # Log path: verify existence of checkpoint dir, or create it
     if not osp.exists(args.checkpoint):
-        os.makedirs(args.checkpoint)
+        os.makedirs(args.checkpoint, exist_ok=True)
 
     args.adv_dir = osp.join(args.checkpoint, 'advs')
     if not osp.exists(args.adv_dir):
-        os.makedirs(args.adv_dir)
+        os.makedirs(args.adv_dir, exist_ok=True)
 
     args.logs_dir = osp.join(args.checkpoint, 'logs')
     if not osp.exists(args.logs_dir):
-        os.makedirs(args.logs_dir)
+        os.makedirs(args.logs_dir, exist_ok=True)
 
     # txt file with all params
     chunk = 'all' if args.num_chunk is None else args.num_chunk
