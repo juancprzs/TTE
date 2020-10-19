@@ -94,9 +94,11 @@ class AugWrapper(nn.Module):
     def __init__(self, model, flip=False, n_crops=0, flip_crop=False, 
             gauss_ps=None):
         super(AugWrapper, self).__init__()
+        assert ~flip and n_crops == 0 and ~flip_crop and gauss_ps is None, 'Only one transformation must be turned on'
         self.model = model
         # transforms
         self.transforms = [lambda x: x] # the identity
+        # self.transforms = [lambda x: x] # the identity
         self.total_augs = self._init_augs(flip, n_crops, gauss_ps, flip_crop)
         
         if len(self.total_augs) != 0: # whether augmentations are used

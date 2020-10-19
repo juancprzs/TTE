@@ -36,6 +36,12 @@ def parse_settings():
                              'checkpoint/logs/results_chunk*of*_*to*.txt')
     args = parser.parse_args()
 
+    assert args.flip and args.n_crops != 0 and args.flip_crop, 'You must only select one option.'
+    assert args.flip and args.n_crops != 0, 'You must only select one option.'
+    assert args.flip and args.flip_crop, 'You must only select one option.'
+    assert args.n_crops != 0 and args.flip_crop, 'You must only select one option.'
+    assert args.n_crops > 1, 'Number of crops must be 1'
+
     # Log path: verify existence of checkpoint dir, or create it
     if not osp.exists(args.checkpoint):
         os.makedirs(args.checkpoint, exist_ok=True)
