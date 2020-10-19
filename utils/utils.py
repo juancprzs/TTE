@@ -94,7 +94,7 @@ class AugWrapper(nn.Module):
     def __init__(self, model, flip=False, n_crops=0, flip_crop=False, 
             gauss_ps=None):
         super(AugWrapper, self).__init__()
-        assert ~flip and n_crops == 0 and ~flip_crop and gauss_ps is None, 'Only one transformation must be turned on'
+        assert ~flip and n_crops != 0 and ~flip_crop and gauss_ps is None, 'Only one transformation must be turned on'
         self.model = model
         # transforms
         self.transforms = [lambda x: x] # the identity
