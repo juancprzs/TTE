@@ -17,13 +17,13 @@ from torch.utils.data import DataLoader, random_split
 
 
 class DiffCrop(nn.Module):
-    def __init__(self, inp_size=32, crop_size=32, pad_size=4):
+    def __init__(self, x, y, inp_size=32, crop_size=32, pad_size=4):
         super(DiffCrop, self).__init__()
         self.pad = tuple([pad_size for _ in range(4)]) # udlr
         # get origins for x and y
         valid_init_limit = inp_size + int(2*pad_size) - crop_size
-        self.orig_x = np.random.randint(valid_init_limit)
-        self.orig_y = np.random.randint(valid_init_limit)
+        self.orig_x = x
+        self.orig_y = y
         # get ends for x and y
         self.end_x = self.orig_x + crop_size
         self.end_y = self.orig_y + crop_size
@@ -92,8 +92,15 @@ class NormalizedWrapper(nn.Module):
 
 class AugWrapper(nn.Module):
     def __init__(self, model, flip=False, n_crops=0, flip_crop=False, 
-            gauss_ps=None):
+            gauss_ps=None, x=None, y=None):
         super(AugWrapper, self).__init__()
+        
+        assert ~flip and ~flip_crop and n_crops == 1 and gauss_ps is None, 'Only augmentation should be 1 crop'
+        assert x is not None and y is not None, 'x and y coordinates should be specified'
+        
+        self.x_coord = x
+        self.y_coord = y
+
         self.model = model
         # transforms
         self.transforms = [lambda x: x] # the identity
@@ -117,7 +124,7 @@ class AugWrapper(nn.Module):
         if n_crops != 0:
             total_augs.append(f'crops n={n_crops}')
             # crop augmentations
-            crops_fs = [DiffCrop() for _ in range(n_crops)]
+            crops_fs = [DiffCrop(self.x_coord, self.y_coord) for _ in range(n_crops)]
             self.transforms.extend([lambda x: f(x) for f in crops_fs])
         
         if flip and (n_crops != 0) and flip_crop:

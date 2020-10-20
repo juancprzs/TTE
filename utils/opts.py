@@ -34,6 +34,10 @@ def parse_settings():
     parser.add_argument('--eval-files', action='store_true', default=False,
 		                help='evaluate based on files at '
                              'checkpoint/logs/results_chunk*of*_*to*.txt')
+    parser.add_argument('--x_coord', type=int, default=None, 
+                        help='x-coordinate for cropping image')
+    parser.add_argument('--y_coord', type=int, default=None, 
+                        help='y-coordinate for cropping image')                   
     args = parser.parse_args()
 
     # Log path: verify existence of checkpoint dir, or create it
