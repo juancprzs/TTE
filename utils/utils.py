@@ -97,7 +97,7 @@ class AugWrapper(nn.Module):
         assert ~flip and n_crops != 0 and ~flip_crop and gauss_ps is None, 'Only one transformation must be turned on'
         self.model = model
         # transforms
-        self.transforms = [lambda x: x] # the identity
+        self.transforms = [] # the identity
         # self.transforms = [lambda x: x] # the identity
         self.total_augs = self._init_augs(flip, n_crops, gauss_ps, flip_crop)
         
