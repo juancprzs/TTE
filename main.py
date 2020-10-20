@@ -37,7 +37,7 @@ def main(args):
         gauss_ps = None
     
     model_aug = AugWrapper(model, args.flip, args.n_crops, args.flip_crop, 
-                           gauss_ps).to(DEVICE)
+                           gauss_ps, x=args.x_coord, y=args.y_coord).to(DEVICE)
 
     # Print augmentations
     info = ','.join(model_aug.total_augs)
