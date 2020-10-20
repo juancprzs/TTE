@@ -19,6 +19,8 @@ from torch.utils.data import DataLoader, random_split
 class DiffCrop(nn.Module):
     def __init__(self, x, y, inp_size=32, crop_size=32, pad_size=4):
         super(DiffCrop, self).__init__()
+        assert x < 2 * pad_size and y < 2 * pad_size
+        
         self.pad = tuple([pad_size for _ in range(4)]) # udlr
         # get origins for x and y
         valid_init_limit = inp_size + int(2*pad_size) - crop_size
@@ -97,7 +99,7 @@ class AugWrapper(nn.Module):
         
         assert ~flip and ~flip_crop and n_crops == 1 and gauss_ps is None, 'Only augmentation should be 1 crop'
         assert x is not None and y is not None, 'x and y coordinates should be specified'
-        
+
         self.x_coord = x
         self.y_coord = y
 
