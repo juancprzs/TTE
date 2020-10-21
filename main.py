@@ -6,8 +6,8 @@ import numpy as np
 import os.path as osp
 import torch.backends.cudnn as cudnn
 
-from utils.utils import (get_data_utils, AugWrapper, get_model, print_to_log, 
-                         eval_chunk, eval_files)
+from utils.utils import (AugWrapper, get_model, print_to_log, eval_chunk,
+                         eval_files)
 
 # For deterministic behavior
 cudnn.benchmark = False
@@ -50,13 +50,13 @@ def main(args):
     if args.num_chunk is None: # evaluate sequentially
         log_files = []
         for num_chunk in range(1, args.chunks+1):
-            log_file = eval_chunk(model_aug, batch_size, args.chunks, num_chunk,
-                                  DEVICE, args)
+            log_file = eval_chunk(model_aug, args.dataset, batch_size, 
+                                  args.chunks, num_chunk, DEVICE, args)
             log_files.append(log_file)
 
         eval_files(log_files, args.final_results)
     else: # evaluate a single chunk and exit
-        log_file = eval_chunk(model_aug, batch_size, args.chunks, 
+        log_file = eval_chunk(model_aug, args.dataset, batch_size, args.chunks, 
                               args.num_chunk, DEVICE, args)
         sys.exit()
 

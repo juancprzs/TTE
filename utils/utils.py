@@ -10,7 +10,7 @@ from autoattack import AutoAttack
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision.datasets import CIFAR10
+from torchvision.datasets import CIFAR10, CIFAR100
 from torch.utils.data import TensorDataset
 from torchvision.transforms import Compose, ToTensor
 from torch.utils.data import DataLoader, random_split
@@ -145,9 +145,10 @@ class AugWrapper(nn.Module):
         return scores
 
 
-def get_data_utils(batch_size, chunks, num_chunk):
-    dataset = CIFAR10(root='./data', train=False, download=True,
-                      transform=Compose([ToTensor()]))
+def get_data_utils(dataset_name, batch_size, chunks, num_chunk):
+    dataset_fun = CIFAR10 if dataset_name == 'cifar10' else CIFAR100
+    dataset = dataset_fun(root='./data', train=False, download=True,
+                          transform=Compose([ToTensor()]))
     tot_instances = len(dataset)
     assert 1 <= num_chunk <= chunks
     assert tot_instances % chunks == 0
@@ -273,7 +274,7 @@ def get_model(experiment):
     elif experiment == 'awp_cif100': # Adversarial Weight Perturbation for CIFAR100
         from experiments.adv_weight_pert_cif100 import get_model
         model = get_model()
-    elif experiment == 'imagenet_pretraining': #ImageNet preatraining
+    elif experiment == 'imagenet_pretraining': # ImageNet preatraining
         from experiments.imagenet_pretraining import get_imagenet_pretrained_model
         model = get_imagenet_pretrained_model()
 
@@ -301,8 +302,8 @@ def save_results(advs, labels, accs, args, num_chunk, start_ind, end_ind):
     return log_file
 
 
-def eval_chunk(model, batch_size, chunks, num_chunk, device, args):
-    testloader, start_ind, end_ind = get_data_utils(batch_size, chunks, 
+def eval_chunk(model, dataset, batch_size, chunks, num_chunk, device, args):
+    testloader, start_ind, end_ind = get_data_utils(dataset, batch_size, chunks, 
                                                     num_chunk)
     # Clean acc
     clean_acc = get_clean_acc(model, testloader, device)

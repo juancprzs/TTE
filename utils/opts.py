@@ -37,6 +37,8 @@ def parse_settings():
                              'checkpoint/logs/results_chunk*of*_*to*.txt')
     args = parser.parse_args()
 
+    args.dataset = 'cifar100' if 'awp_cif100' in args.experiment else 'cifar10'
+
     # Log path: verify existence of checkpoint dir, or create it
     if not osp.exists(args.checkpoint):
         os.makedirs(args.checkpoint, exist_ok=True)
