@@ -270,6 +270,9 @@ def get_model(experiment):
     elif experiment == 'awp': # Adversarial Weight Perturbation
         from experiments.adv_weight_pert import get_model
         model = get_model()
+    elif experiment == 'awp_cif100': # Adversarial Weight Perturbation for CIFAR100
+        from experiments.adv_weight_pert_cif100 import get_model
+        model = get_model()
     elif experiment == 'imagenet_pretraining': #ImageNet preatraining
         from experiments.imagenet_pretraining import get_imagenet_pretrained_model
         model = get_imagenet_pretrained_model()
