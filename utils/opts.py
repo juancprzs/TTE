@@ -5,7 +5,7 @@ from utils.utils import print_training_params
 
 def parse_settings():
     EXP_CHOICES = ['local_trades','trades','awp','imagenet_pretraining',\
-                   'awp_cif100']
+                   'awp_cif100', 'unlabeled_pretraining']
     parser = ArgumentParser(description='PyTorch code for TAR: Test-time '
                             'Augmentation for Robustness')
     parser.add_argument('--experiment', type=str, default='trades', 
