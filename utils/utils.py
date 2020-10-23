@@ -277,6 +277,9 @@ def get_model(experiment):
     elif experiment == 'imagenet_pretraining': # ImageNet preatraining
         from experiments.imagenet_pretraining import get_imagenet_pretrained_model
         model = get_imagenet_pretrained_model()
+    elif experiment == 'unlabeled_pretraining': # Unlabeled preatraining
+        from experiments.unlabeled_pretraining import get_imagenet_pretrained_model
+        model = get_imagenet_pretrained_model()
 
     return model
 
