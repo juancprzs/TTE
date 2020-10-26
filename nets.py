@@ -183,7 +183,7 @@ class DiffFlipCrop():
             # paddings = tf.constant(self.pad)
             # fc_image = tf.pad(flip_image, paddings, 'CONSTANT')
             # fc_image = fc_image[:, :, self.orig_x:self.end_x, self.orig_y:self.end_y]
-            crop_image = crop(crop_image, self.orig_x, self.orig_y, self.crop_size)
+            crop_image = crop(flip_image, self.orig_x, self.orig_y, self.crop_size)
         return fc_image
 
 
