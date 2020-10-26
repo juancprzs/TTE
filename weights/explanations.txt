@@ -1,1 +1,0 @@
-TRADES: official_trades_cifar_wrn34_10.pth | obtained from https://github.com/yaodongyu/TRADES#how-to-download-our-cnn-checkpoint-for-mnist-and-wrn-34-10-checkpoint-for-cifar10
