@@ -265,9 +265,9 @@ def get_model(experiment):
         state_dict = { k.replace('model.' ,'') : v 
             for k, v in state_dict.items() }
         model.load_state_dict(state_dict, strict=False)
-    elif experiment == 'trades':
+    elif experiment in ['trades', 'noflip_trades', 'nocrop_trades']:
         from experiments.trades import get_model
-        model = get_model()
+        model = get_model(experiment)
     elif experiment == 'awp': # Adversarial Weight Perturbation
         from experiments.adv_weight_pert import get_model
         model = get_model()

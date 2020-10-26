@@ -99,9 +99,14 @@ class WideResNet(nn.Module):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def get_model():
+def get_model(experiment):
     # https://github.com/yaodongyu/TRADES/blob/master/evaluate_attack_cifar10.py#L104
-    WEIGHTS_PATH = './weights/official_trades_cifar_wrn34_10.pth'
+    if experiment == 'trades':
+        WEIGHTS_PATH = './weights/official_trades_cifar_wrn34_10.pth'
+    elif experiment == 'noflip_trades':
+        WEIGHTS_PATH = './weights/trades_noflip.pth'
+    elif experiment == 'nocrop_trades':
+        WEIGHTS_PATH = './weights/trades_nocrop.pth'
     model = WideResNet()
     # load weights
     model.load_state_dict(torch.load(WEIGHTS_PATH))
