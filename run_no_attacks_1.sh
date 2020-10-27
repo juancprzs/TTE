@@ -17,10 +17,10 @@ GPU=1
 # CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 1 --exp-name flip-and-crop3-1.txt --n-crops 3 --flip
 # CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 2 --exp-name flip-and-crop3-2.txt --n-crops 3 --flip
 
-CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 0 --exp-name flip-and-crop1-0.txt --n-crops 1 --flip --flip-crop
-CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 1 --exp-name flip-and-crop1-1.txt --n-crops 1 --flip --flip-crop
-CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 2 --exp-name flip-and-crop1-2.txt --n-crops 1 --flip --flip-crop
+CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 0 --exp-name flip-and-crop1-and-flipcrop-0.txt --n-crops 1 --flip --flip-crop
+CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 1 --exp-name flip-and-crop1-and-flipcrop-1.txt --n-crops 1 --flip --flip-crop
+CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 2 --exp-name flip-and-crop1-and-flipcrop-2.txt --n-crops 1 --flip --flip-crop
 
-CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 0 --exp-name flip-and-crop4-0.txt --n-crops 4 --flip --flip-crop
-CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 1 --exp-name flip-and-crop4-1.txt --n-crops 4 --flip --flip-crop
-CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 2 --exp-name flip-and-crop4-2.txt --n-crops 4 --flip --flip-crop
+CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 0 --exp-name flip-and-crop4-and-flipcrop-0.txt --n-crops 4 --flip --flip-crop
+CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 1 --exp-name flip-and-crop4-and-flipcrop-1.txt --n-crops 4 --flip --flip-crop
+CUDA_VISIBLE_DEVICES=$GPU python eval_wrapper.py --load weights/R152-Denoise.npz --attack-iter 0 --arch ResNetDenoise --seed 2 --exp-name flip-and-crop4-and-flipcrop-2.txt --n-crops 4 --flip --flip-crop

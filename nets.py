@@ -81,22 +81,11 @@ class ModelWrapper(ResNetDenoiseModel):
         self.transforms = AUMENTS(args.flip, args.n_crops, args.flip_crop)
 
     def get_logits(self, image):
-        print(image.get_shape())  # it is 224 x 224 at the moment?
+        print(image.get_shape())  # it is 256 x 256 at the moment
         mean_logits = tf.zeros((tf.shape(image)[0], 1000))
         n = len(self.transforms)
         for t in self.transforms:
             mean_logits = tf.add(self.model.get_logits(t.forward(image)), mean_logits)
-
-        # # condition function
-        # n = len(self.transforms)
-        # cond = lambda i, x: i < n
-
-        # # body function
-        # body = lambda i, x: (i + 1,
-        #                      self.model.get_logits(self.transforms[i].forward(image)) + x)
-
-        # # for loop
-        # _, mean_logits = tf.while_loop(cond, body, (0, mean_logits))
 
         mean_logits = mean_logits / tf.constant(n, dtype=tf.float32)
 
@@ -104,13 +93,8 @@ class ModelWrapper(ResNetDenoiseModel):
 
 
 def crop(image, orig_x, orig_y, crop_size):
-    # image = tf.slice(image, [0, 0, orig_x, orig_y], [image.get_shape()[0], image.get_shape()[1], crop_size, crop_size])
-    # image = tf.transpose(image, [0, 2, 3, 1])
-    # image = tf.image.crop_to_bounding_box(image, orig_x, orig_y, crop_size, crop_size)
-    # image = tf.transpose(image, [0, 3, 1, 2])
-    print(image.get_shape())  # it is 224 x 224 at the moment?
+    # it is 256 x 256 at the moment
     image = image[:, :, orig_x: (orig_x + crop_size), orig_y: (orig_y + crop_size)]
-    print(image.get_shape())
     return image
 
 
@@ -122,8 +106,6 @@ class Diffidentity():
         Expected input of 256 x 256
         '''
         with tf.variable_scope('Identity'):
-            # indent_image = image[:, :, (128 - 112): (128 + 112), (128 - 112): (128 + 112)]
-            # indent_image = image
             indent_image = crop(image, 14, 14, 224)
         return indent_image
 
@@ -134,17 +116,12 @@ class DiffFlip():
         Performs the Center crop of 224.
         Expected input of 256 x 256
         '''
-        # images = image[:, :, 128 - 112: 128 + 112, 128 - 112: 128 + 112]
         image = crop(image, 14, 14, 224)
         return tf.reverse(image, axis=tf.constant([3,], dtype=tf.int32), name='Flip')
 
 
 class DiffCrop():
     def __init__(self, crop_size=224, pad_size=0, input_size=256):
-    # def __init__(self, crop_size=224, pad_size=28, input_size=224):
-        '''
-        I have chosen 28 for the pad 
-        '''
         self.pad = [[0, 0],
                     [0, 0],
                     [pad_size, pad_size],
@@ -159,10 +136,6 @@ class DiffCrop():
 
     def forward(self, image):
         with tf.variable_scope('Crop'):
-            # paddings = tf.constant(self.pad)
-            # crop_image = tf.pad(image, paddings, 'REFLECT')
-            # image = tf.pad(image, paddings, 'CONSTANT')
-            # crop_image = crop_image[:, :, self.orig_x:self.end_x, self.orig_y:self.end_y]
             crop_image = crop(image, self.orig_x, self.orig_y, self.crop_size)
         return crop_image
 
@@ -180,9 +153,6 @@ class DiffFlipCrop():
 
         with tf.variable_scope('FlipCrop'):
             flip_image = tf.reverse(image, axis=tf.constant([3,], dtype=tf.int32))
-            # paddings = tf.constant(self.pad)
-            # fc_image = tf.pad(flip_image, paddings, 'CONSTANT')
-            # fc_image = fc_image[:, :, self.orig_x:self.end_x, self.orig_y:self.end_y]
             crop_image = crop(flip_image, self.orig_x, self.orig_y, self.crop_size)
         return crop_image
 
