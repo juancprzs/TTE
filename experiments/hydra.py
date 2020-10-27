@@ -145,7 +145,7 @@ def wrn_28_10(**kwargs):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def get_model(experiment):
+def get_model():
     # https://github.com/yaodongyu/TRADES/blob/master/evaluate_attack_cifar10.py#L104
     model = wrn_28_10()
     # load weights
