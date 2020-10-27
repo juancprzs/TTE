@@ -14,8 +14,8 @@
 #SBATCH -A conf-gpu-2020.11.23
 
 ind=${SLURM_ARRAY_TASK_ID};
-val1=$(($ind / 9)); val1=$(($val1 + 1));
-val2=$(($ind % 9)); val2=$(($val2 + 1));
+val1=$(($ind / 9)); val1=$(($val1 + 0));
+val2=$(($ind % 9)); val2=$(($val2 + 0));
 
 python main.py \
 --chunks 2 \
