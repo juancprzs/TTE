@@ -182,9 +182,9 @@ def get_clean_acc(model, testloader, device):
     return acc
 
 
-def get_adversary(model, cheap, seed):
+def get_adversary(model, cheap, seed, eps):
     model.eval()
-    adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=False)
+    adversary = AutoAttack(model.forward, norm='Linf', eps=eps, verbose=False)
     adversary.seed = seed
     if cheap:
         # print('Running CHEAP attack')
@@ -202,9 +202,9 @@ def get_adversary(model, cheap, seed):
 
     return adversary
 
-def compute_advs(model, testloader, device, batch_size, cheap, seed):
+def compute_advs(model, testloader, device, batch_size, cheap, seed, eps):
     model.eval()
-    adversary = get_adversary(model, cheap, seed)
+    adversary = get_adversary(model, cheap, seed, eps)
     imgs = torch.cat([x for (x, y) in testloader], 0)
     labs = torch.cat([y for (x, y) in testloader], 0)
     advs = adversary.run_standard_evaluation_individual(imgs, labs, 
@@ -315,13 +315,13 @@ def eval_chunk(model, dataset, batch_size, chunks, num_chunk, device, args):
     clean_acc = get_clean_acc(model, testloader, device)
     # Compute adversarial instances
     advs, labels = compute_advs(model, testloader, device, batch_size, 
-                                args.cheap, args.seed)
+                                args.cheap, args.seed, args.eps)
     # Compute robustness
     accs = compute_adv_accs(model, advs, labels, device, batch_size)
     # Send everything to file
     accs.update({'clean' : clean_acc , 'n_instances' : len(testloader.dataset)})
     log_file = save_results(advs, labels, accs, args, num_chunk, start_ind,
-                             end_ind)
+                            end_ind)
 
     return log_file
 
