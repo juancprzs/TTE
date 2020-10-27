@@ -150,7 +150,7 @@ def get_model():
     model = wrn_28_10()
     # load weights
     WEIGHTS_PATH = './weights/hydra_model_best_dense.pth'
-    state_dict = torch.load(WEIGHTS_PATH)["state_dict"]
+    state_dict = torch.load(WEIGHTS_PATH, map_location='cpu')['state_dict']
     state_dict = { k.replace('module.', '') : v for k, v in state_dict.items() }
     model.load_state_dict(state_dict)
     # place inside normalizing wrapper
