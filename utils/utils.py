@@ -280,6 +280,9 @@ def get_model(experiment):
     elif experiment == 'unlabeled_pretraining': # Unlabeled preatraining
         from experiments.unlabeled_pretraining import get_imagenet_pretrained_model
         model = get_imagenet_pretrained_model()
+    elif experiment == 'hydra': # HYDRA
+        from experiments.hydra import get_model
+        model = get_model()
 
     return model
 
