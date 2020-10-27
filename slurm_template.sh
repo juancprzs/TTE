@@ -19,7 +19,7 @@ val2=$(($ind % 9)); val2=$(($val2 + 1));
 
 python main.py \
 --chunks 2 \
---checkpoint runs/only_crop_x$val1-y$val2 \
+--checkpoint runs/only_crop_ablation/exp_x$val1-y$val2 \
 --experiment local_trades \
 --n-crops 1 \
 --num-chunk 1 \
