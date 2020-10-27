@@ -105,13 +105,15 @@ class AugWrapper(nn.Module):
 
         self.model = model
         # transforms
-        self.transforms = [lambda x: x] # the identity
+        self.transforms = [] # NO identity
         self.total_augs = self._init_augs(flip, n_crops, gauss_ps, flip_crop)
         
         if len(self.total_augs) != 0: # whether augmentations are used
             print('Using augmentations: ' + ','.join(self.total_augs))
         else:
             print('NOT using augmentations!')
+
+        assert len(self.total_augs) == 1 # only the crop
 
         print(f'{len(self.transforms)} transforms: {self.transforms}')
     
