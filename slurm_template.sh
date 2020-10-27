@@ -14,6 +14,5 @@
 #SBATCH -A conf-gpu-2020.11.23
 
 python main.py \
---checkpoint runs/chunked_baseline \
---num-chunk ${SLURM_ARRAY_TASK_ID} \
---chunks 25
+--checkpoint runs/remove_soon \
+--experiment local_trades

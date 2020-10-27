@@ -192,7 +192,7 @@ def get_clean_acc(model, testloader, device):
 
 def get_adversary(model, cheap, seed):
     model.eval()
-    adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=False)
+    adversary = AutoAttack(model.forward, norm='Linf', eps=0.031, verbose=True)
     adversary.seed = seed
     if cheap:
         # print('Running CHEAP attack')
