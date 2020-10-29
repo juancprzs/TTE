@@ -283,7 +283,9 @@ def get_model(experiment):
     elif experiment == 'hydra': # HYDRA
         from experiments.hydra import get_model
         model = get_model()
-
+    elif experiment == 'mart': #MART
+        from experiments.mart import get_model
+        model = get_model()
     return model
 
 
