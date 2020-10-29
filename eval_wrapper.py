@@ -81,7 +81,7 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--depth', help='ResNet depth',
                         type=int, default=152, choices=[50, 101, 152])
     parser.add_argument('--arch', help='Name of architectures defined in nets.py',
-                        default='ResNet')
+                        default='ResNetDenoise')
 
     # augment
     parser.add_argument('--flip', action='store_true')
