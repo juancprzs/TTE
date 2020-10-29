@@ -81,11 +81,11 @@ class ModelWrapper(ResNetDenoiseModel):
         self.transforms = AUMENTS(args.flip, args.n_crops, args.flip_crop)
 
     def get_logits(self, image):
-        print(image.get_shape())  # it is 256 x 256 at the moment
         mean_logits = tf.zeros((tf.shape(image)[0], 1000))
         n = len(self.transforms)
-        for t in self.transforms:
-            mean_logits = tf.add(self.model.get_logits(t.forward(image)), mean_logits)
+        with tf.compat.v1.variable_scope('', reuse=tf.compat.v1.AUTO_REUSE):
+            for t in self.transforms:
+                mean_logits = tf.add(self.model.get_logits(t.forward(image)), mean_logits)
 
         mean_logits = mean_logits / tf.constant(n, dtype=tf.float32)
 
@@ -105,7 +105,7 @@ class Diffidentity():
         Performs the Center crop of 224.
         Expected input of 256 x 256
         '''
-        with tf.variable_scope('Identity'):
+        with tf.compat.v1.variable_scope('Identity'):
             indent_image = crop(image, 14, 14, 224)
         return indent_image
 
@@ -135,7 +135,7 @@ class DiffCrop():
         self.crop_size = crop_size
 
     def forward(self, image):
-        with tf.variable_scope('Crop'):
+        with tf.compat.v1.variable_scope('Crop'):
             crop_image = crop(image, self.orig_x, self.orig_y, self.crop_size)
         return crop_image
 
@@ -151,7 +151,7 @@ class DiffFlipCrop():
 
     def forward(self, image):
 
-        with tf.variable_scope('FlipCrop'):
+        with tf.compat.v1.variable_scope('FlipCrop'):
             flip_image = tf.reverse(image, axis=tf.constant([3,], dtype=tf.int32))
             crop_image = crop(flip_image, self.orig_x, self.orig_y, self.crop_size)
         return crop_image

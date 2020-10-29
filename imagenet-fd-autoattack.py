@@ -1,5 +1,7 @@
 import os
+import cv2
 import tqdm
+import torch
 import argparse
 import numpy as np
 
@@ -8,7 +10,6 @@ from tensorpack.tfutils import get_model_loader
 
 import tensorflow as tf
 
-import torch
 from torchvision import transforms, datasets
 
 from autoattack import AutoAttack, utils_tf
@@ -51,6 +52,8 @@ def arguments():
     # Miscellaneous
     parser.add_argument('--save-adv', action='store_true',
                         help='Save adversarial images')
+    parser.add_argument('--evaluate-chunks', action='store_true',
+                        help='Evaluate the chunks on --output-path')
 
     return parser.parse_args()
 
@@ -89,9 +92,15 @@ def compute_corrects(features, label):
     return np.sum(correct), pred
 
 
-def main():
+def loader(path):
+    im = cv2.imread(path, cv2.IMREAD_COLOR)
+    return im
 
-    args = arguments()
+
+def main(args):
+
+
+    np.random.seed(args.seed)
 
     os.makedirs(args.output_path, exist_ok=True)
 
@@ -104,7 +113,6 @@ def main():
     image_ = tf.transpose(img_input, [0, 3, 1, 2])
     lab_input = tf.placeholder(dtype=tf.int64, shape=[None])
     with TowerContext('', is_training=False):
-        # logits = model.get_logits(img_input)
         logits = model.get_logits(image_)
 
     # Session and load weights
@@ -130,6 +138,8 @@ def main():
                                              shuffle=False, num_workers=8,
                                              pin_memory=True)
 
+    print('\n\n\nTOTAL IMAGES ON THIS CHUNK: {}'.format(len(chunkloader)))
+
     # Create adversary
     adversary = AutoAttack(model_adapted, norm='Linf', eps=args.epsilon,
                            version='standard', is_tf_model=True, verbose=False)
@@ -147,45 +157,89 @@ def main():
 
     for clean_x, label in tqdm.tqdm(dataloader):
 
-        numpy_clean = torch.transpose(clean_x, 1, 2)
-        numpy_clean = torch.transpose(numpy_clean, 2, 3).numpy()
+        numpy_clean = np.transpose(clean_x.numpy(), [0, 2, 3, 1])
 
         # compute clean acc
         features = sess.run(logits, feed_dict={img_input: numpy_clean})
         clean_correct, clean_pred = compute_corrects(features, label.numpy())
-        # import pdb; pdb.set_trace()
 
-    #     # compute adversary images
-    #     adv_x = adversary.run_standard_evaluation(clean_x, label, bs=args.batch)
+        # compute adversary images
+        adv_x = adversary.run_standard_evaluation(clean_x, label, bs=args.batch)
 
-    #     numpy_adv = torch.transpose(adv_x, 1, 2)
-    #     numpy_adv = torch.transpose(numpy_adv, 2, 3).detach().cpu().numpy()
+        numpy_adv = np.transpose(adv_x.detach().cpu().numpy(), [0, 2, 3, 1])
 
-    #     # compute adversary acc
-    #     adv_features = sess.run(logits, feed_dict={img_input: numpy_adv})
-    #     adv_correct, adv_pred = compute_corrects(adv_features, label.numpy())
+        # compute adversary acc
+        adv_features = sess.run(logits, feed_dict={img_input: numpy_adv})
+        adv_correct, adv_pred = compute_corrects(adv_features, label.numpy())
 
         c_clean += clean_correct
-    #     c_adv += adv_correct
+        c_adv += adv_correct
         n += label.size(0)
 
-    #     if args.save_adv:
-    #         labels.append(label)
-    #         pred.append(torch.tensor(clean_pred))
-    #         advers_pred.append(torch.tensor(adv_pred))
-    #         adv_examples.append(torch.tensor(numpy_adv))
+        if args.save_adv:
+            labels.append(label)
+            pred.append(torch.tensor(clean_pred))
+            advers_pred.append(torch.tensor(adv_pred))
+            adv_examples.append(torch.tensor(numpy_adv))
 
     with open(f'{args.output_path}/results-chunk{args.actual_chunk}-total-chunks-{args.total_chunks}.txt', 'w') as f:
         f.write(f'n:{n}\nclean corrects:{c_clean}\nadversary correct:{c_adv}')
     print(f'n:{n}\nclean corrects:{c_clean}\nadversary correct:{c_adv}')
-    # if args.save_adv:
-    #     torch.save({
-    #         'gt': torch.cat(labels, dim=0),
-    #         'clean pred': torch.cat(pred, dim=0),
-    #         'adv pred': torch.cat(advers_pred, dim=0),
-    #         'adv examples': torch.cat(adv_examples, dim=0),
-    #         }, f'{args.output_path}/data-chunk{args.actual_chunk}-total-chunks-{args.total_chunks}.pth')
 
+    if args.save_adv:
+        torch.save({
+            'gt': torch.cat(labels, dim=0),
+            'clean pred': torch.cat(pred, dim=0),
+            'adv pred': torch.cat(advers_pred, dim=0),
+            'adv examples': torch.cat(adv_examples, dim=0),
+            }, f'{args.output_path}/data-chunk{args.actual_chunk}-total-chunks-{args.total_chunks}.pth')
+
+
+def evaluate_chunks(args):
+    existing_files = []
+    missing_files = []
+
+    for i in range(args.total_chunks):
+        path = os.path.join(args.output_path,
+                            f'results-chunk{i}-total-chunks-{args.total_chunks}.txt')
+
+        if os.path.exists(path):
+            existing_files.append(path)
+        else:
+            missing_files.append(i)
+
+    if len(missing_files) != 0:
+        print('Missing experiments:', missing_files)
+
+    clean = 0
+    adv =  0
+    n = 0
+
+    for file in existing_files:
+        with open(file, 'r') as f:
+            data = f.read()
+
+        for line in data.split('\n'):
+            k, v = line.split(':')
+            v = int(v)
+            if k == 'n':
+                n += v
+            elif k == 'clean corrects':
+                clean += v
+            elif k == 'clean adversary':
+                adv += v
+
+    message = f'Results:\n\tTop1: {100 * clean / n}\n\tTop1 adv: {100 * adv / n}'
+
+    print(message)
+    with open(f'{args.output_path}/final-results.txt', 'w') as f:
+        f.write(message)
 
 if __name__ == '__main__':
-    main()
+    
+    args = arguments()
+
+    if args.evaluate_chunks:
+        evaluate_chunks(args)
+    else:
+        main(args)
