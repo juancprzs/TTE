@@ -19,7 +19,7 @@ from torch.utils.data import DataLoader, random_split
 class DiffCrop(nn.Module):
     def __init__(self, x, y, inp_size=32, crop_size=32, pad_size=4):
         super(DiffCrop, self).__init__()
-        assert x < 2 * pad_size and y < 2 * pad_size
+        assert x <= 2 * pad_size and y <= 2 * pad_size
         
         self.pad = tuple([pad_size for _ in range(4)]) # udlr
         # get origins for x and y
