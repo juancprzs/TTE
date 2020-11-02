@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import os.path as osp
 from argparse import ArgumentParser
 from utils.utils import print_training_params
@@ -35,10 +36,13 @@ def parse_settings():
     parser.add_argument('--eval-files', action='store_true', default=False,
 		                help='evaluate based on files at '
                              'checkpoint/logs/results_chunk*of*_*to*.txt')
-    parser.add_argument('--eps', type=float, default=0.031,
-                        help='attack strength')
+    parser.add_argument('--eps', type=int, default=8,
+                        help='attack strength: 8 -> 8/255')
+    parser.add_argument('--n-iter', type=int, default=None, 
+                        help='number of iters for apgd-t')
     args = parser.parse_args()
 
+    args.eps = np.round(args.eps / 255, 3) # approx to 3 places: 8/255 -> 0.031
     args.dataset = 'cifar100' if 'awp_cif100' in args.experiment else 'cifar10'
 
     # Log path: verify existence of checkpoint dir, or create it
