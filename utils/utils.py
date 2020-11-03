@@ -286,7 +286,7 @@ def get_model(experiment):
     elif experiment == 'mart': # MART
         from experiments.mart import get_model
         model = get_model()
-    elif experiment == 'ates': # Adversarial Training with Early Stopping
+    elif experiment in ['ates', 'ates_cif100']: # Adversarial Training with Early Stopping
         from experiments.ates import get_model
         model = get_model(experiment)
     return model
