@@ -5,7 +5,8 @@ from utils.utils import print_training_params
 
 def parse_settings():
     EXP_CHOICES = ['local_trades','trades','awp','imagenet_pretraining', \
-                   'awp_cif100','noflip_trades','nocrop_trades','hydra', 'mart']
+                   'awp_cif100','noflip_trades','nocrop_trades','hydra', \
+                   'mart','ates','ates_cif100']
     parser = ArgumentParser(description='PyTorch code for TAR: Test-time '
                             'Augmentation for Robustness')
     parser.add_argument('--experiment', type=str, default='trades', 
@@ -39,7 +40,10 @@ def parse_settings():
                         help='attack strength')
     args = parser.parse_args()
 
-    args.dataset = 'cifar100' if 'awp_cif100' in args.experiment else 'cifar10'
+    if args.experiment in ['awp_cif100','ates_cif100']:
+        args.dataset = 'cifar100'
+    else:
+        args.dataset = 'cifar10'
 
     # Log path: verify existence of checkpoint dir, or create it
     if not osp.exists(args.checkpoint):
