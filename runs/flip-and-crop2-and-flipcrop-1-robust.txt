@@ -1,0 +1,3 @@
+Top1 Error: 0.48196
+Attack Success Rate: 0.13308
+Top5 Error: 0.22564
