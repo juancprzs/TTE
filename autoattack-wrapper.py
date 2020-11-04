@@ -309,7 +309,7 @@ def evaluate_chunks(args):
 
     # Initialize results
     results = {}
-    with open(file, 'r') as f:
+    with open(existing_files[0], 'r') as f:
         data = f.read()
 
     for line in data.split('\n'):
@@ -331,10 +331,11 @@ def evaluate_chunks(args):
             results[k] += v
 
     message = 'Results:'
-    for k, v in results:
+    for k, v in results.items():
         if k == 'n':
-            continue
-        message += '\n\t{} - {}%'.format(k, v / results['n'])
+            message += '\n\t{} - {}'.format(k, v)
+        else:
+            message += '\n\t{} - {}%'.format(k, 100 * v / results['n'])
 
     print(message)
     with open(f'{args.output_path}/final-results.txt', 'w') as f:

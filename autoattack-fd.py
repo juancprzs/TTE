@@ -49,8 +49,6 @@ def arguments():
     # Miscellaneous
     parser.add_argument('--save-adv', action='store_true',
                         help='Save adversarial images')
-    parser.add_argument('--evaluate-chunks', action='store_true',
-                        help='Evaluate the chunks on --output-path')
 
     return parser.parse_args()
 
@@ -286,60 +284,7 @@ def main(args):
         torch.save(save_dict, f'{args.output_path}/data-chunk{args.actual_chunk}-total-chunks-{args.total_chunks}.pth')
 
 
-def evaluate_chunks(args):
-    existing_files = []
-    missing_files = []
-
-    for i in range(args.total_chunks):
-        path = os.path.join(args.output_path,
-                            f'results-chunk{i}-total-chunks-{args.total_chunks}.txt')
-
-        if os.path.exists(path):
-            existing_files.append(path)
-        else:
-            missing_files.append(i)
-
-    if len(missing_files) != 0:
-        print('Missing experiments:', missing_files)
-
-    # Initialize results
-    results = {}
-    with open(file, 'r') as f:
-        data = f.read()
-
-    for line in data.split('\n'):
-        if line == '':
-            continue
-        k, _ = line.split(':')
-        results[k] = 0
-        
-    # read files
-    for file in existing_files:
-        with open(file, 'r') as f:
-            data = f.read()
-
-        for line in data.split('\n'):
-            if line == '':
-                continue
-            k, v = line.split(':')
-            v = int(v)
-            results[k] += v
-
-    message = 'Results:'
-    for k, v in results:
-        if k == 'n':
-            continue
-        message += '\n\t{} - {}%'.format(k, v / results['n'])
-
-    print(message)
-    with open(f'{args.output_path}/final-results.txt', 'w') as f:
-        f.write(message)
-
 if __name__ == '__main__':
     
     args = arguments()
-
-    if args.evaluate_chunks:
-        evaluate_chunks(args)
-    else:
-        main(args)
+    main(args)
