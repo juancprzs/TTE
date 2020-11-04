@@ -1,0 +1,4 @@
+apgd-t:55.63
+rob acc:55.63
+clean:81.13
+n_instances:10000

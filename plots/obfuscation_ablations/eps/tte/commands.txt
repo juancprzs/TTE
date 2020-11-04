@@ -1,0 +1,1 @@
+for f in obf_abl_{1..64}of255_fc4; do ff=~/TAR/runs/$f/results.txt; echo $ff; echo $f; mkdir $f; cp $ff $f; echo ""; done

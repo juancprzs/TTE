@@ -1,0 +1,2 @@
+for f in obf_abl_n_iter{1..75}_fc4; do ff=TAR/runs/$f; echo $ff; echo $f; mkdir $f; scp -i ~/.ssh/id_rsa perezjc@10.68.106.156:~/$ff/results.txt $f; echo ""; done
+for f in obf_abl_n_iter{76..100}_fc4; do ff=TAR/runs/$f; echo $ff; echo $f; mkdir $f; scp -i ~/.ssh/id_rsa perezjc@10.67.24.148:~/$ff/results.txt $f; echo ""; done
