@@ -126,6 +126,21 @@ def compute_corrects(features, label):
     return np.sum(correct), pred
 
 
+def compute_corrects_advs(advs, label, sess, placeholder, logits):
+    current_corrects = {}
+
+    for attack_name, advs in advs.items():
+        numpy_adv = np.transpose(advs.detach().cpu().numpy(), [0, 2, 3, 1])
+        adv_features = sess.run(logits, feed_dict={placeholder: numpy_adv})
+        corrects, pred = compute_corrects(adv_features, label)
+
+        current_corrects[attack_name] = {}
+        current_corrects[attack_name]['corrects'] = corrects
+        current_corrects[attack_name]['pred'] = pred
+
+    return current_corrects
+
+
 def load_and_process(path, inter=cv2.INTER_CUBIC):
     # import pdb; pdb.set_trace()
     shortest = 256
@@ -187,7 +202,6 @@ def main(args):
     # forward here
     img_input = tf.placeholder(dtype=tf.float32, shape=[None, 256, 256, 3])
     image_ = img_input * 2.0 - 1.0
-    # image_ = img_input / 127.5 - 1.0
     image_ = tf.transpose(image_, [0, 3, 1, 2])
     lab_input = tf.placeholder(dtype=tf.int64, shape=[None])
     with TowerContext('', is_training=False):
@@ -200,21 +214,6 @@ def main(args):
     model_adapted = utils_tf.ModelAdapter(logits, img_input, lab_input, sess, num_classes=1000)
 
     # load dataset
-    # normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],
-    #                                  std=[0.5, 0.5, 0.5])  # the model normalizes everything inside
-    # val_transform = transforms.Compose([
-    #         transforms.Resize(256),  # Shortest edge will become 256
-    #         transforms.CenterCrop(256),  # CenterCrop of 256, the model internally takes the 224 x 224 crop
-    #         transforms.ToTensor(),
-    #         normalize,
-    #         TORCH_TO_TF()  # The model takes as input a BGR image
-    #     ])
-    # dataset = datasets.ImageFolder(os.path.join(args.data, 'val'), transform=val_transform)
-    # chunkloader = ChunkDataset(dataset, num_chunk=args.actual_chunk,
-    #                            total_chunks=args.total_chunks)
-    # dataloader = torch.utils.data.DataLoader(chunkloader, batch_size=args.batch,
-    #                                          shuffle=False, num_workers=8,
-    #                                          pin_memory=True)
 
     dataset = ImageNetDataset(os.path.join(args.data, 'val'))
     chunkloader = ChunkDataset(dataset, num_chunk=args.actual_chunk,
@@ -224,19 +223,19 @@ def main(args):
     print('\n\n\nTOTAL IMAGES ON THIS CHUNK: {}'.format(len(chunkloader)))
 
     # Create adversary
-    adversary = AutoAttack(model_adapted, norm='Linf', eps=8.0 / 255.0,
-                           version='standard', is_tf_model=True, verbose=True)
+    adversary = AutoAttack(model_adapted, norm='Linf', eps=args.epsilon,
+                           version='standard', is_tf_model=True, verbose=False)
 
     # Count variables
     n = 0
-    c_clean = 0
-    c_adv = 0
+    correct_dict = {'clean': 0}
 
     if args.save_adv:
-        labels = []
-        pred = []
-        advers_pred = []
-        adv_examples = []
+        save_dict = {'gt': [],
+                     'clean pred': [],
+                     'adv pred': {},
+                     'adv examples': {}}
+
 
     for numpy_clean, label in tqdm.tqdm(dataloader):
 
@@ -246,38 +245,50 @@ def main(args):
         features = sess.run(logits, feed_dict={img_input: numpy_clean})
         clean_correct, clean_pred = compute_corrects(features, label)
 
+
+        # compute adversarial images
         torch_clean = torch.from_numpy(np.transpose(numpy_clean, [0, 3, 1, 2])).to(dtype=torch.float)
+        adv_x = adversary.run_standard_evaluation_individual(torch_clean.contiguous(), torch.from_numpy(label), bs=args.batch)
 
-        # compute adversary images
-        adv_x = adversary.run_standard_evaluation(torch_clean.contiguous(), torch.from_numpy(label), bs=args.batch)
 
-        numpy_adv = np.transpose(adv_x.detach().cpu().numpy(), [0, 2, 3, 1])
+        # compute robust acc
+        adv_dict_correct = compute_corrects_advs(adv_x, label, sess, img_input, logits)
 
-        # compute adversary acc
-        adv_features = sess.run(logits, feed_dict={img_input: numpy_adv})
-        adv_correct, adv_pred = compute_corrects(adv_features, label)
+        if n == 0:
+            for k in adv_dict_correct.keys():
+                correct_dict[k] = 0
+                if args.save_adv:
+                    save_dict['adv pred'][k] = []
+                    save_dict['adv examples'][k] = []
 
-        c_clean += clean_correct
-        c_adv += adv_correct
+        # update records
         n += label.shape[0]
+        correct_dict['clean'] += clean_correct
+        for k, v in adv_dict_correct.items():
+            correct_dict[k] += v['corrects']
 
         if args.save_adv:
-            labels.append(torch.tensor(label))
-            pred.append(torch.tensor(clean_pred))
-            advers_pred.append(torch.tensor(adv_pred))
-            adv_examples.append(torch.tensor(numpy_adv))
+            save_dict['gt'].append(label)
+            save_dict['clean pred'].append(clean_pred)
+            for k, v in adv_dict_correct.items():
+                save_dict['adv pred'][k].append(v['pred'])
+                save_dict['adv examples'][k].append(adv_x[k])
+
+    message = f'n:{n}\n'
+    for k, v in correct_dict.items():
+        message += f'{k}:{v}\n'
 
     with open(f'{args.output_path}/results-chunk{args.actual_chunk}-total-chunks-{args.total_chunks}.txt', 'w') as f:
-        f.write(f'n:{n}\nclean corrects:{c_clean}\nadversary correct:{c_adv}')
-    print(f'n:{n}\nclean corrects:{c_clean}\nadversary correct:{c_adv}')
+        f.write(message)
+    print(message)
 
     if args.save_adv:
-        torch.save({
-            'gt': torch.cat(labels, dim=0),
-            'clean pred': torch.cat(pred, dim=0),
-            'adv pred': torch.cat(advers_pred, dim=0),
-            'adv examples': torch.cat(adv_examples, dim=0),
-            }, f'{args.output_path}/data-chunk{args.actual_chunk}-total-chunks-{args.total_chunks}.pth')
+        save_dict['gt'] = np.concatenate(save_dict['gt'], axis=0)
+        save_dict['clean pred'] = np.concatenate(save_dict['clean pred'], axis=0)
+        for k in save_dict['adv pred'].keys():
+            save_dict['adv pred'][k] = np.concatenate(save_dict['adv pred'][k], axis=0)
+            save_dict['adv examples'][k] = np.concatenate(save_dict['adv examples'][k], axis=0)
+        torch.save(save_dict, f'{args.output_path}/data-chunk{args.actual_chunk}-total-chunks-{args.total_chunks}.pth')
 
 
 def evaluate_chunks(args):
@@ -296,25 +307,34 @@ def evaluate_chunks(args):
     if len(missing_files) != 0:
         print('Missing experiments:', missing_files)
 
-    clean = 0
-    adv =  0
-    n = 0
+    # Initialize results
+    results = {}
+    with open(file, 'r') as f:
+        data = f.read()
 
+    for line in data.split('\n'):
+        if line == '':
+            continue
+        k, _ = line.split(':')
+        results[k] = 0
+        
+    # read files
     for file in existing_files:
         with open(file, 'r') as f:
             data = f.read()
 
         for line in data.split('\n'):
+            if line == '':
+                continue
             k, v = line.split(':')
             v = int(v)
-            if k == 'n':
-                n += v
-            elif k == 'clean corrects':
-                clean += v
-            elif k == 'clean adversary':
-                adv += v
+            results[k] += v
 
-    message = f'Results:\n\tTop1: {100 * clean / n}\n\tTop1 adv: {100 * adv / n}'
+    message = 'Results:'
+    for k, v in results:
+        if k == 'n':
+            continue
+        message += '\n\t{} - {}%'.format(k, v / results['n'])
 
     print(message)
     with open(f'{args.output_path}/final-results.txt', 'w') as f:
