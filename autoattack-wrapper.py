@@ -47,7 +47,7 @@ def arguments():
     parser.add_argument('--seed', type=int, default=1)
 
     # Attack options
-    parser.add_argument('--epsilon', type=float, default=8 / 255,
+    parser.add_argument('--epsilon', type=float, default=16 / 255,
                         help='Epsilon for the attack')
 
     # Miscellaneous
@@ -126,10 +126,12 @@ def compute_corrects(features, label):
     return np.sum(correct), pred
 
 
-def compute_corrects_advs(advs, label, sess, placeholder, logits):
+def compute_corrects_advs(advs_imgs, label, sess, placeholder, logits):
     current_corrects = {}
+    all_preds = []
 
-    for attack_name, advs in advs.items():
+    for attack_name, advs in advs_imgs.items():
+
         numpy_adv = np.transpose(advs.detach().cpu().numpy(), [0, 2, 3, 1])
         adv_features = sess.run(logits, feed_dict={placeholder: numpy_adv})
         corrects, pred = compute_corrects(adv_features, label)
@@ -137,7 +139,14 @@ def compute_corrects_advs(advs, label, sess, placeholder, logits):
         current_corrects[attack_name] = {}
         current_corrects[attack_name]['corrects'] = corrects
         current_corrects[attack_name]['pred'] = pred
+        all_preds.append(pred)
 
+    # compute robust acc
+    all_preds = np.concatenate([np.expand_dims(x, axis=0) for x in all_preds])
+    temp_labels = np.expand_dims(label, axis=0)
+    temp_labels = np.concatenate([temp_labels for _ in range(len(advs_imgs))])
+    where_all_correct = np.prod(np.equal(all_preds, temp_labels).astype('long'), axis=0)
+    current_corrects['rob acc'] = np.sum(where_all_correct)
     return current_corrects
 
 
@@ -222,10 +231,6 @@ def main(args):
 
     print('\n\n\nTOTAL IMAGES ON THIS CHUNK: {}'.format(len(chunkloader)))
 
-    # Create adversary
-    adversary = AutoAttack(model_adapted, norm='Linf', eps=args.epsilon,
-                           version='standard', is_tf_model=True, verbose=False)
-
     # Count variables
     n = 0
     correct_dict = {'clean': 0}
@@ -236,8 +241,10 @@ def main(args):
                      'adv pred': {},
                      'adv examples': {}}
 
-
     for numpy_clean, label in tqdm.tqdm(dataloader):
+
+        if numpy_clean.shape[0] == 0:
+            continue
 
         numpy_clean = numpy_clean.astype('float32') / 255.0
 
@@ -248,16 +255,21 @@ def main(args):
 
         # compute adversarial images
         torch_clean = torch.from_numpy(np.transpose(numpy_clean, [0, 3, 1, 2])).to(dtype=torch.float)
-        adv_x = adversary.run_standard_evaluation_individual(torch_clean.contiguous(), torch.from_numpy(label), bs=args.batch)
-
+        adversary = AutoAttack(model_adapted, norm='Linf', eps=args.epsilon,
+                               version='standard', is_tf_model=True, verbose=True)
+        adv_x = adversary.run_standard_evaluation_individual(torch_clean.contiguous(), torch.from_numpy(label), bs=numpy_clean.shape[0])
 
         # compute robust acc
         adv_dict_correct = compute_corrects_advs(adv_x, label, sess, img_input, logits)
+
+        print(adv_dict_correct)
 
         if n == 0:
             for k in adv_dict_correct.keys():
                 correct_dict[k] = 0
                 if args.save_adv:
+                    if k == 'rob acc':
+                        continue
                     save_dict['adv pred'][k] = []
                     save_dict['adv examples'][k] = []
 
@@ -265,12 +277,17 @@ def main(args):
         n += label.shape[0]
         correct_dict['clean'] += clean_correct
         for k, v in adv_dict_correct.items():
-            correct_dict[k] += v['corrects']
+            if k == 'rob acc':
+                correct_dict[k] += v
+            else:
+                correct_dict[k] += v['corrects']
 
         if args.save_adv:
             save_dict['gt'].append(label)
             save_dict['clean pred'].append(clean_pred)
             for k, v in adv_dict_correct.items():
+                if k == 'rob acc':
+                    continue
                 save_dict['adv pred'][k].append(v['pred'])
                 save_dict['adv examples'][k].append(adv_x[k])
 
