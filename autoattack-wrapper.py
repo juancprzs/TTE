@@ -255,13 +255,13 @@ def main(args):
 
         # compute adversarial images
         torch_clean = torch.from_numpy(np.transpose(numpy_clean, [0, 3, 1, 2])).to(dtype=torch.float)
+        adversary = AutoAttack(model_adapted, norm='Linf', eps=args.epsilon,
+                               version='standard', is_tf_model=True, verbose=True)
         try:
-            adversary = AutoAttack(model_adapted, norm='Linf', eps=args.epsilon,
-                                   version='standard', is_tf_model=True, verbose=True)
+            adv_x = adversary.run_standard_evaluation_individual(torch_clean.contiguous(), torch.from_numpy(label), bs=numpy_clean.shape[0])
         except:
             print('SKIPPING STEP. ERROR FOUND ON AUTOATTACK')
             continue
-        adv_x = adversary.run_standard_evaluation_individual(torch_clean.contiguous(), torch.from_numpy(label), bs=numpy_clean.shape[0])
 
         # compute robust acc
         adv_dict_correct = compute_corrects_advs(adv_x, label, sess, img_input, logits)
