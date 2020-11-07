@@ -25,4 +25,5 @@ python autoattack-wrapper.py \
 --load ~/imagenet_weights/feature_denoising_R152-Denoise.npz \
 --data /local/reference/CV/ILSVR/classification-localization/data/jpeg \
 --output-path /ibex/scratch/perezjc/TAR_imagenet/flip_crops1 \
---actual-chunk ${SLURM_ARRAY_TASK_ID}
+--actual-chunk ${SLURM_ARRAY_TASK_ID} \
+--save-adv
