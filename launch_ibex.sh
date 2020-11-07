@@ -14,7 +14,8 @@
 #SBATCH --constraint=ref_32T
 #SBATCH -A conf-gpu-2020.11.23
 
-conda activate tf-aa
+conda activate guill
+module load cuda/10.0.130
 
 python autoattack-wrapper.py \
 --flip \
