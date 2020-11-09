@@ -1,0 +1,4 @@
+n:2084
+clean:1365
+joint:96
+rob acc:96

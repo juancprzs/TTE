@@ -55,6 +55,8 @@ def arguments():
                         help='Save adversarial images')
     parser.add_argument('--evaluate-chunks', action='store_true',
                         help='Evaluate the chunks on --output-path')
+    parser.add_argument('--run-all-individual', action='store_true',
+                        help='Use this flag to evaluate independently all attacks')
 
     return parser.parse_args()
 
@@ -151,7 +153,7 @@ def compute_corrects_advs(advs_imgs, label, sess, placeholder, logits):
 
 
 def load_and_process(path, inter=cv2.INTER_CUBIC):
-    # import pdb; pdb.set_trace()
+
     shortest = 256
 
     image = cv2.imread(path)
@@ -257,8 +259,12 @@ def main(args):
         torch_clean = torch.from_numpy(np.transpose(numpy_clean, [0, 3, 1, 2])).to(dtype=torch.float)
         adversary = AutoAttack(model_adapted, norm='Linf', eps=args.epsilon,
                                version='standard', is_tf_model=True, verbose=True)
+
         try:
-            adv_x = adversary.run_standard_evaluation_individual(torch_clean.contiguous(), torch.from_numpy(label), bs=numpy_clean.shape[0])
+            if not args.run_all_individual:
+                adv_x = {'joint': adversary.run_standard_evaluation(torch_clean.contiguous(), torch.from_numpy(label), bs=numpy_clean.shape[0])}
+            else:
+                adv_x = adversary.run_standard_evaluation_individual(torch_clean.contiguous(), torch.from_numpy(label), bs=numpy_clean.shape[0])
         except:
             print('SKIPPING STEP. ERROR FOUND ON AUTOATTACK')
             continue
