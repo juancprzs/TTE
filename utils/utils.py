@@ -10,14 +10,14 @@ from autoattack import AutoAttack
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision.datasets import CIFAR10, CIFAR100
+from torchvision.datasets import CIFAR10, CIFAR100, ImageFolder
 from torch.utils.data import TensorDataset
 from torchvision.transforms import Compose, ToTensor
 from torch.utils.data import DataLoader, random_split
-
+import torchvision.models as models
 
 class DiffCrop(nn.Module):
-    def __init__(self, inp_size=32, crop_size=32, pad_size=4):
+    def __init__(self, inp_size=224, crop_size=224, pad_size=4):
         super(DiffCrop, self).__init__()
         self.pad = tuple([pad_size for _ in range(4)]) # udlr
         # get origins for x and y
@@ -146,10 +146,22 @@ class AugWrapper(nn.Module):
 
 
 def get_data_utils(dataset_name, batch_size, chunks, num_chunk):
-    dataset_fun = CIFAR10 if dataset_name == 'cifar10' else CIFAR100
-    dataset = dataset_fun(root='./data', train=False, download=True,
-                          transform=Compose([ToTensor()]))
+    if dataset_name == 'imagenet':
+        from torchvision import transforms
+        path = '/local/reference/CV/ILSVR/classification-localization/data/jpeg/val'
+        transform = transforms.Compose([
+            transforms.RandomResizedCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor()
+        ])
+        dataset = ImageFolder(path, transform)
+        print('Hi')
+    else:
+        dataset_fun = CIFAR10 if dataset_name == 'cifar10' else CIFAR100
+        dataset = dataset_fun(root='./data', train=False, download=True,
+                            transform=Compose([ToTensor()]))
     tot_instances = len(dataset)
+    print('lols', tot_instances)
     assert 1 <= num_chunk <= chunks
     assert tot_instances % chunks == 0
     # inds of current chunk
@@ -289,6 +301,9 @@ def get_model(experiment):
     elif experiment in ['ates', 'ates_cif100']: # Adversarial Training with Early Stopping
         from experiments.ates import get_model
         model = get_model(experiment)
+    elif experiment == 'imagenet_nominal_training':
+        model = models.resnet18(pretrained=True)
+        model = NormalizedWrapper(model, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     return model
 
 
