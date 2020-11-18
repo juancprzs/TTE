@@ -17,7 +17,7 @@ from torch.utils.data import DataLoader, random_split
 import torchvision.models as models
 
 class DiffCrop(nn.Module):
-    def __init__(self, inp_size=224, crop_size=224, pad_size=4):
+    def __init__(self, inp_size=32, crop_size=32, pad_size=4):
         super(DiffCrop, self).__init__()
         self.pad = tuple([pad_size for _ in range(4)]) # udlr
         # get origins for x and y
