@@ -304,6 +304,9 @@ def get_model(experiment):
     elif experiment == 'imagenet_nominal_training':
         model = models.resnet18(pretrained=True)
         model = NormalizedWrapper(model, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    elif experiment in ['gowal', 'gowal_c100']:
+        from experiments.gowal import get_model
+        model = get_model(experiment)
     return model
 
 
