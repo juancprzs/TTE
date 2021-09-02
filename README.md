@@ -8,8 +8,8 @@ bash Anaconda3-2020.07-Linux-x86_64.sh
 ## The repo and the environment
 Clone the repo and create the environment
 ```bash
-git clone https://github.com/juancprzs/TAR.git
-cd TAR
+git clone https://github.com/juancprzs/TTE.git
+cd TTE
 conda env create -f utils/upd_pt.yml
 ```
 
