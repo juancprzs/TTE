@@ -1,4 +1,5 @@
 # TTE
+This is the official implementation of the paper *Enhancing Adversarial Robustness via Test-time Transformation Ensembling* (available [here](https://openaccess.thecvf.com/content/ICCV2021W/AROW/papers/Perez_Enhancing_Adversarial_Robustness_via_Test-Time_Transformation_Ensembling_ICCVW_2021_paper.pdf)), published at the ICCV 2021 workshop on [Adversarial Robustness in the Real World](https://iccv21-adv-workshop.github.io).
 ## Install conda
 ```bash
 wget https://repo.anaconda.com/archive/Anaconda3-2020.07-Linux-x86_64.sh
@@ -26,24 +27,6 @@ And install `tqdm`
 ```bash
 pip install tqdm
 ```
-
-## Large files
-We'll be dealing with large files. It will be easier for us to manage it directly through GitHub. There's a tool called ["Git Large File Storage"](https://git-lfs.github.com/). We're still learning to use it, so there could be a couple problems.
-
-In any case, we need to install it. First, ask conda to install it:
-```bash
-conda install -c conda-forge git-lfs
-```
-
-Then set it up by running
-```bash
-git lfs install
-```
-
-And do a `git-lfs pull` inside the repo. Then go check whether the files inside the `weights` directory are actual files (not just pointers). You can check that by taking a look at the size of the files: if the files are like 4kB, they are pointers, otherwise, they are the actual weights. Run `du -sh weights/*.pth` to check.
-
-## Results
-The spreadsheet is [here](https://docs.google.com/spreadsheets/d/13iskg4cQlvAgvLB3HvPuq5tRlykhMZMDv_uHKHUxeZo/edit#gid=0).
 
 ## Usage example
 This code internally manages the computation of adversaries by partitioning the dataset into chunks and evaluating each chunk. This dynamic will allow us to parallelize adversary computation across jobs. However, the code is also capable of conducting the computation of adversaries for the entire dataset. Here I'll demonstrate how the _same_ results can be achieved both by doing the full thing _vs._ the "chunked" version of the computation.
@@ -100,3 +83,14 @@ n_instances:10000
 ```
 Which is the same one would obtain by following the instructions from the previous section.
 
+
+## Citing our work
+If you find our work useful, please consider citing us. The corresponding BibTex entry is:
+```
+@inproceedings{perez2021enhancing,
+  title={Enhancing Adversarial Robustness via Test-time Transformation Ensembling},
+  author={P{\'e}rez, Juan C and Alfarra, Motasem and Jeanneret, Guillaume and Rueda, Laura and Thabet, Ali and Ghanem, Bernard and Arbel{\'a}ez, Pablo},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+  year={2021}
+}
+```
