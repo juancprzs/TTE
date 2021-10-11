@@ -1,4 +1,4 @@
-# TTE
+# Enhancing Adversarial Robustness via Test-time Transformation Ensembling
 This is the official implementation of the paper *Enhancing Adversarial Robustness via Test-time Transformation Ensembling* (available [here](https://openaccess.thecvf.com/content/ICCV2021W/AROW/papers/Perez_Enhancing_Adversarial_Robustness_via_Test-Time_Transformation_Ensembling_ICCVW_2021_paper.pdf)), published at the ICCV 2021 workshop on [Adversarial Robustness in the Real World](https://iccv21-adv-workshop.github.io).
 ## Install conda
 ```bash
